@@ -3,7 +3,7 @@ img = {tile = {}}
 function img.setup()
 	img.cursor = love.graphics.newImage("art/cursor.png")
 
-	img.tile_size = 32
+	img.tile_size = 8
 
 	img.tileset = love.graphics.newImage("art/tileset.png")
 	img.tileset:setFilter("nearest", "linear")
@@ -28,8 +28,7 @@ function img.setup()
 	img.nq_break_block("slope_-23_a",	12,  2)
 	img.nq_break_block("slope_-23_b",	 0,  3)
 
-	img.nq_sprite("player", 	 0,	 4)
-	img.nq_sprite("demon",		 0,	 6)
+	img.nq("player",			 0,	 4)
 
 	img.nq("dashburst",			 0,	 8)
 	img.nq("dashburst",			 1,	 8)

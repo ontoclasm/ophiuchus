@@ -80,6 +80,8 @@ function map:fill_main()
 	self:set_block("slope_-45_b", 13, 11)
 	self:set_block("slope_-45_b", 12, 10)
 
+	self:set_block_rect("wall", 19, 10, 1, 3)
+
 	self:set_block("slope_23_a", 26, 12)
 	self:set_block("slope_23_a", 28, 11)
 	self:set_block("slope_23_a", 30, 10)

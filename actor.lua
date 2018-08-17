@@ -333,58 +333,14 @@ function actor:die()
 	end
 end
 
--- in 20ths of a second for now
-function actor:anim_time()
-	return math.floor(10 * (ctime - self.anim_start))
-end
-
-function actor:sprite_anim()
-	-- stand, run right, run left, dash right, dash left, jump, fall
-	if self:check_status("dash_right") then
-		return 'dr'
-	elseif self:check_status("dash_left") then
-		return 'dl'
-	elseif not self.touching_floor then
-		if self.dy <= 0 then
-			return 'au'
-		else
-			return 'ad'
-		end
-	elseif self.controls.x == 1 then
-		return 'wr'
-	elseif self.controls.x == -1 then
-		return 'wl'
-	else
-		return 'id'
-	end
-end
-
 function actor:draw()
-	s = self:sprite_anim()
-	n = img.tile[self.sprite .. s .. self.facing]['n'] or 1
-
-	if n ~= 1 then
-		-- figure out which frame we want
-		frame = 1 + self:anim_time() % n
-	else
-		frame = 1
-	end
-
 	if self.flash_time > ctime then
 		love.graphics.setColor(color.mix(self.color, self.flash_color, 2 * (self.flash_time - ctime)))
 	else
 		love.graphics.setColor(self.color)
 	end
-	love.graphics.draw(img.tileset, img.tile[self.sprite .. s .. self.facing][frame],
-					   camera.view_x(self) - 16, camera.view_y(self) - 25)
-
-	if self.anim_last ~= s then
-		self.anim_start = ctime
-		self.anim_last = s
-	end
-
-	-- debug
-	love.graphics.print(self.id, math.floor(self.x + self.half_w - camera.x), math.floor(self.y - self.half_h - camera.y))
+	love.graphics.draw(img.tileset, img.tile[self.sprite][1],
+					   camera.view_x(self) - 4, camera.view_y(self) - 4)
 end
 
 return actor
