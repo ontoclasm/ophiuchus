@@ -44,7 +44,7 @@ function actor:update_location(dt)
 	self.dy = mymath.clamp(-self.top_speed, self.dy, self.top_speed)
 
 	-- calculate how far to move this frame
-	-- cut off the fractional part; we'll readd it next frame
+	-- cut off the fractional part; we'll re-add it next frame
 	self.dx_acc = self.dx_acc + self.dx * dt
 	self.dy_acc = self.dy_acc + self.dy * dt
 	vx, vy = mymath.abs_floor(self.dx_acc), mymath.abs_floor(self.dy_acc)
@@ -64,8 +64,8 @@ function actor:update_location(dt)
 		-- change our vector based on the slope we hit
 		r = self.dx * ny - self.dy * nx
 
-		self.dx = mymath.abs_floor(r * ny)
-		self.dy = mymath.abs_floor(r * (-nx))
+		self.dx = r * ny
+		self.dy = r * (-nx)
 
 		-- delete our accumulators if they point into the surface
 		if nx ~= 0 then
@@ -76,16 +76,37 @@ function actor:update_location(dt)
 		end
 
 		if m_time < 1 then
-			-- now try continuing our movement along the new vector
-			hit, mx, my, m_time, nx, ny = physics.map_collision_aabb_sweep({x = mx, y = my, half_h = self.half_h, half_w = self.half_w},
-																		   mymath.abs_floor(self.dx * dt * (1 - m_time)),
-																		   mymath.abs_floor(self.dy * dt * (1 - m_time)))
-			if hit then
+			if vx >= 1 and ny ~= 0 and nx < 0 then
+				-- going right into a slope up and to the right
+				hit, mx, my, m_time, nx, ny = physics.map_collision_aabb_sweep({x = mx, y = my, half_h = self.half_h, half_w = self.half_w},
+					mymath.abs_ceil(vx * (1 - m_time)), -mymath.abs_ceil(vx * (1 - m_time)))
+				if hit then
+					r = self.dx * ny - self.dy * nx
 
-				r = self.dx * ny - self.dy * nx
+					self.dx = r * ny
+					self.dy = r * (-nx)
+				end
+			elseif vx <= -1 and ny ~= 0 and nx > 0 then
+				-- going left into a slope up and to the left
+				hit, mx, my, m_time, nx, ny = physics.map_collision_aabb_sweep({x = mx, y = my, half_h = self.half_h, half_w = self.half_w},
+					mymath.abs_ceil(vx * (1 - m_time)), mymath.abs_ceil(vx * (1 - m_time)))
+				if hit then
+					r = self.dx * ny - self.dy * nx
 
-				self.dx = mymath.abs_floor(r * ny)
-				self.dy = mymath.abs_floor(r * (-nx))
+					self.dx = r * ny
+					self.dy = r * (-nx)
+				end
+			else
+				-- try continuing our movement along the new vector
+				hit, mx, my, m_time, nx, ny = physics.map_collision_aabb_sweep({x = mx, y = my, half_h = self.half_h, half_w = self.half_w},
+																			   mymath.abs_floor(self.dx * dt * (1 - m_time + 1E-5)),
+																			   mymath.abs_floor(self.dy * dt * (1 - m_time + 1E-5)))
+				if hit then
+					r = self.dx * ny - self.dy * nx
+
+					self.dx = r * ny
+					self.dy = r * (-nx)
+				end
 			end
 		end
 	end

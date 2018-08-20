@@ -92,11 +92,11 @@ function physics.collision_aabb_sweep_slope(a, b, vx, vy, slope, slope_y_offset,
 
 	if vx ~= 0 then
 		if sign_x == 1 then
-			near_time_x = (bx - ax - b.half_w * bhm.l - a.half_w) * scale_x
-			far_time_x = (bx - ax + b.half_w * bhm.r + a.half_w) * scale_x
+			near_time_x = (bx - ax - b.half_w * bhm.l - a.half_w + 1E-5) * scale_x
+			far_time_x = (bx - ax + b.half_w * bhm.r + a.half_w - 1E-5) * scale_x
 		else
-			near_time_x = (bx - ax + b.half_w * bhm.r + a.half_w) * scale_x
-			far_time_x = (bx - ax - b.half_w * bhm.l - a.half_w) * scale_x
+			near_time_x = (bx - ax + b.half_w * bhm.r + a.half_w - 1E-5) * scale_x
+			far_time_x = (bx - ax - b.half_w * bhm.l - a.half_w + 1E-5) * scale_x
 		end
 	else
 		if ax > bx - b.half_w * bhm.l - a.half_w and ax < bx + b.half_w * bhm.r + a.half_w then
@@ -108,11 +108,11 @@ function physics.collision_aabb_sweep_slope(a, b, vx, vy, slope, slope_y_offset,
 
 	if vy ~= 0 then
 		if sign_y == 1 then
-			near_time_y = (by - ay - b.half_h * bhm.u - a.half_h) * scale_y
-			far_time_y = (by - ay + b.half_h * bhm.d + a.half_h) * scale_y
+			near_time_y = (by - ay - b.half_h * bhm.u - a.half_h + 1E-5) * scale_y
+			far_time_y = (by - ay + b.half_h * bhm.d + a.half_h - 1E-5) * scale_y
 		else
-			near_time_y = (by - ay + b.half_h * bhm.d + a.half_h) * scale_y
-			far_time_y = (by - ay - b.half_h * bhm.u - a.half_h) * scale_y
+			near_time_y = (by - ay + b.half_h * bhm.d + a.half_h - 1E-5) * scale_y
+			far_time_y = (by - ay - b.half_h * bhm.u - a.half_h + 1E-5) * scale_y
 		end
 	else
 		if ay > by - b.half_h * bhm.u - a.half_h and ay < by + b.half_h * bhm.d + a.half_h then
