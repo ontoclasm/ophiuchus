@@ -32,18 +32,19 @@ function love.load()
 	game_canvas = love.graphics.newCanvas()
 	game_canvas:setFilter("linear", "nearest")
 
-	gravity = 1000
+	gravity = 0
 
 	player = actor:new(
 		{
 			class = "player", id = 1, name = "player1", faction = "player",
-			x = 50, y = 50, half_w = 4, half_h = 4,
-			dx = 0, dy = 0,
+			x = 50, y = 50,
+			dx = 0, dy = 0, dx_acc = 0, dy_acc = 0,
+			half_w = 4, half_h = 4,
 			sprite = "player", color = color.rouge, flash_color = color.white, flash_time = 0,
 			facing = 'r', anim_start = ctime,
 			ai = {control = "player"}, controls = {},
 			top_speed = 50,
-			walk_accel = 300, walk_friction = 100,
+			walk_accel = 100, walk_friction = 100,
 			jump_speed = 200, air_accel = 200,
 			dash_speed = 200, dash_dur = 0.3, dash_cooldown = 0.1,
 			touching_floor = false, double_jumps = 0, double_jumps_max = 2,
@@ -55,7 +56,7 @@ end
 local time_acc = 0
 local TIMESTEP = 1/60
 function love.update(dt)
-	time_acc = time_acc + dt / 5
+	time_acc = time_acc + dt
 
 	while time_acc >= TIMESTEP do
 		guitime = guitime + TIMESTEP
@@ -97,9 +98,9 @@ function love.draw()
 
 	-- gui
 
-	-- if game_state == "play" then
-	-- 	love.graphics.draw(img.cursor, mouse.x - 2, mouse.y - 2)
-	-- end
+	if game_state == "play" then
+		love.graphics.draw(img.cursor, mouse.x - 2, mouse.y - 2)
+	end
 
 	-- love.graphics.setColor(player.color)
 	-- love.graphics.print(player.hp, 20, 20)
@@ -107,13 +108,13 @@ function love.draw()
 	-- debug msg
 	love.graphics.print("Time: "..string.format("%.2f", ctime), 2, window.h/4 - 96)
 	love.graphics.print("FPS: "..love.timer.getFPS(), 2, window.h/4 - 80)
-	love.graphics.print("p: "..mymath.round(player.x)..", "..mymath.round(player.y), 2, window.h/4 - 64)
+	love.graphics.print("p: "..player.x..", "..player.y, 2, window.h/4 - 64)
 	love.graphics.print("d: "..mymath.round(player.dx)..", "..mymath.round(player.dy), 2, window.h/4 - 48)
 	local dc = love.graphics.getStats()
 	love.graphics.print("draws: "..dc.drawcalls, 2, window.h/4 - 32)
 	love.graphics.print(map.grid_at_pos(mouse.x + camera.x)..", "..map.grid_at_pos(mouse.y + camera.y), 2, window.h/4 - 16)
 
-	-- physics.map_collision_test(player)
+	physics.map_collision_test(player)
 
 	if game_state == "pause" then
 		love.graphics.setShader()

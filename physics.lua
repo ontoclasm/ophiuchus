@@ -7,12 +7,13 @@ local hit_time, hit_x, hit_y, nx, ny
 --- test if moving a by (vx,vy) will cause it to hit b
 -- if so, return x,y (point of impact), 0 <= t <= 1 ("time" of impact), nx,ny (normal of the surface we ran into)
 function physics.collision_aabb_sweep(a, b, vx, vy)
+	-- subtract 0.00001 px from the box sizes to avoid (literal) edge cases
 	ax, bx = a.x, b.x
-	pad_x = b.half_w + a.half_w
+	pad_x = b.half_w + a.half_w - 1E-5
 	sign_x = mymath.sign(vx)
 
 	ay, by = a.y, b.y
-	pad_y = b.half_h + a.half_h
+	pad_y = b.half_h + a.half_h - 1E-5
 	sign_y = mymath.sign(vy)
 
 	if vx ~= 0 then
@@ -63,8 +64,17 @@ function physics.collision_aabb_sweep(a, b, vx, vy)
 		ny = -sign_y
 	end
 
-	hit_x = a.x + hit_time * vx - 0.001 * sign_x
-	hit_y = a.y + hit_time * vy - 0.001 * sign_y
+	if sign_x >= 0 then
+		hit_x = math.floor(a.x + hit_time * vx + 1E-5)
+	else
+		hit_x = math.ceil(a.x + hit_time * vx - 1E-5)
+	end
+
+	if sign_y >= 0 then
+		hit_y = math.floor(a.y + hit_time * vy + 1E-5)
+	else
+		hit_y = math.ceil(a.y + hit_time * vy - 1E-5)
+	end
 
 	return hit_x, hit_y, hit_time, nx, ny
 end
@@ -120,8 +130,8 @@ function physics.collision_aabb_sweep_slope(a, b, vx, vy, slope, slope_y_offset,
 	-- ugh, now deal with the slanted edge
 
 	-- coords of the relevant corner of a; currently this is always a bottom corner
-	rx = ax - a.half_w * mymath.sign(slope)
-	ry = ay + a.half_h
+	rx = ax - (a.half_w - 1E-5) * mymath.sign(slope)
+	ry = ay + a.half_h - 1E-5
 
 	if vx ~= 0 then
 		-- find the x distance traveled; divide by vx to find near_time_q
@@ -177,8 +187,17 @@ function physics.collision_aabb_sweep_slope(a, b, vx, vy, slope, slope_y_offset,
 		nx = slope / norm
 		ny = - 1 / norm
 
-		hit_x = a.x + hit_time * vx - 0.001 * sign_x
-		hit_y = a.y + hit_time * vy - 0.001 * sign_y
+		if sign_x >= 0 then
+			hit_x = math.floor(a.x + hit_time * vx + 1E-5)
+		else
+			hit_x = math.ceil(a.x + hit_time * vx - 1E-5)
+		end
+
+		if sign_y >= 0 then
+			hit_y = math.floor(a.y + hit_time * vy + 1E-5)
+		else
+			hit_y = math.ceil(a.y + hit_time * vy - 1E-5)
+		end
 	else
 		if near_time_x > near_time_y then
 			nx = -sign_x
@@ -188,8 +207,17 @@ function physics.collision_aabb_sweep_slope(a, b, vx, vy, slope, slope_y_offset,
 			ny = -sign_y
 		end
 
-		hit_x = a.x + hit_time * vx - 0.001 * sign_x
-		hit_y = a.y + hit_time * vy - 0.001 * sign_y
+		if sign_x >= 0 then
+			hit_x = math.floor(a.x + hit_time * vx + 1E-5)
+		else
+			hit_x = math.ceil(a.x + hit_time * vx - 1E-5)
+		end
+
+		if sign_y >= 0 then
+			hit_y = math.floor(a.y + hit_time * vy + 1E-5)
+		else
+			hit_y = math.ceil(a.y + hit_time * vy - 1E-5)
+		end
 	end
 
 	return hit_x, hit_y, hit_time, nx, ny
@@ -204,10 +232,10 @@ local hit
 local mx, my, mt, mnx, mny
 
 function physics.map_collision_aabb_sweep(a, vx, vy)
-	grid_x1 = map.grid_at_pos(math.min(a.x - a.half_w, a.x - a.half_w + vx))
-	grid_x2 = map.grid_at_pos(math.max(a.x + a.half_w, a.x + a.half_w + vx))
-	grid_y1 = map.grid_at_pos(math.min(a.y - a.half_h, a.y - a.half_h + vy))
-	grid_y2 = map.grid_at_pos(math.max(a.y + a.half_h, a.y + a.half_h + vy))
+	grid_x1 = map.grid_at_pos(math.min(a.x - a.half_w - 1, a.x - a.half_w + vx - 1))
+	grid_x2 = map.grid_at_pos(math.max(a.x + a.half_w + 1, a.x + a.half_w + vx + 1))
+	grid_y1 = map.grid_at_pos(math.min(a.y - a.half_h - 1, a.y - a.half_h + vy - 1))
+	grid_y2 = map.grid_at_pos(math.max(a.y + a.half_h + 1, a.y + a.half_h + vy + 1))
 
 	mt = 1
 	hit = nil
@@ -335,8 +363,10 @@ function physics.map_collision_test(a)
 	love.graphics.setColor(color.white)
 	-- love.graphics.rectangle('line', a.x - camera.x, a.y - camera.y, a.w, a.h)
 	if mt < 1 then
-		love.graphics.line(mx - camera.x, my - camera.y, mx - camera.x + mnx * 8, my - camera.y + mny * 8)
 		love.graphics.line(mx - camera.x, my - camera.y, mx - camera.x + rvx, my - camera.y + rvy)
+		love.graphics.setColor(color.rouge)
+		love.graphics.line(mx - camera.x, my - camera.y, mx - camera.x + mnx * 8, my - camera.y + mny * 8)
+		love.graphics.setColor(color.white)
 	end
 end
 

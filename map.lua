@@ -53,10 +53,10 @@ function map:fill_main()
 	self:set_block_rect("air", 1, 1, self.width, self.height)
 	self:set_block_rect("wall", 5, 13, self.width - 8, 1)
 	local w = 3
-	for i = 1, 5 do
-		w = love.math.random(3,16)
-		self:set_block_rect("wall", love.math.random(1,self.width) - math.floor(w/2), love.math.random(1,self.height - 4), w, 1)
-	end
+	-- for i = 1, 5 do
+	-- 	w = love.math.random(3,16)
+	-- 	self:set_block_rect("wall", love.math.random(1,self.width) - math.floor(w/2), love.math.random(1,self.height - 4), w, 1)
+	-- end
 
 	-- debug stuff
 	-- self:set_block("slope_45", 26, 12)
@@ -80,7 +80,7 @@ function map:fill_main()
 	self:set_block("slope_-45_b", 13, 11)
 	self:set_block("slope_-45_b", 12, 10)
 
-	self:set_block_rect("wall", 19, 10, 1, 3)
+	self:set_block_rect("wall", 19, 10, 1, 7)
 
 	self:set_block("slope_23_a", 26, 12)
 	self:set_block("slope_23_a", 28, 11)

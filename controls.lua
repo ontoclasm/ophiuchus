@@ -40,19 +40,6 @@ function controls.process(a)
 	if controller:down('dp_up') then a.controls.y = a.controls.y - 1 end
 	if controller:down('dp_down') then a.controls.y = a.controls.y + 1 end
 
-	if controller:pressed('dp_left') then
-		if (guitime - last_key_dir.l) < doubletap_time and not player:check_status("dash_cooldown") then
-			player:dash_left()
-		end
-		last_key_dir.l = guitime
-	end
-	if controller:pressed('dp_right') then
-		if (guitime - last_key_dir.r) < doubletap_time and not player:check_status("dash_cooldown") then
-			player:dash_right()
-		end
-		last_key_dir.r = guitime
-	end
-
 	a.controls.jump = controller:pressed('l1')
 	a.controls.float = controller:down('l1')
 
