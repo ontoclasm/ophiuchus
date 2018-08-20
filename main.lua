@@ -32,7 +32,7 @@ function love.load()
 	game_canvas = love.graphics.newCanvas()
 	game_canvas:setFilter("linear", "nearest")
 
-	gravity = 0
+	gravity = 200
 
 	player = actor:new(
 		{
@@ -45,7 +45,7 @@ function love.load()
 			ai = {control = "player"}, controls = {},
 			top_speed = 50,
 			walk_accel = 100, walk_friction = 100,
-			jump_speed = 200, air_accel = 200,
+			jump_speed = 120, air_accel = 200,
 			dash_speed = 200, dash_dur = 0.3, dash_cooldown = 0.1,
 			touching_floor = false, double_jumps = 0, double_jumps_max = 2,
 			hp = 1000, status = {},

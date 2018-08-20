@@ -32,16 +32,19 @@ function actor:update_location(dt)
 		self.dx = math.min(0, self.dx + self.walk_friction * dt)
 	end
 
-	if self.controls.y ~= 0 then
-		self.dy = self.dy + self.controls.y * self.walk_accel * dt
-	elseif self.dy > 0 then
-		self.dy = math.max(0, self.dy - self.walk_friction * dt)
-	elseif self.dy < 0 then
-		self.dy = math.min(0, self.dy + self.walk_friction * dt)
+	if self.controls.jump then
+		self.dy = -self.jump_speed
+	else
+		grounded = physics.map_collision_aabb_sweep(self, 0, 1)
+		if not grounded then
+			self.dy = self.dy + gravity * dt
+		-- else
+		-- 	self.dy = self.dy + 0.5 * gravity * dt
+		end
 	end
 
 	self.dx = mymath.clamp(-self.top_speed, self.dx, self.top_speed)
-	self.dy = mymath.clamp(-self.top_speed, self.dy, self.top_speed)
+	-- self.dy = mymath.clamp(-self.top_speed, self.dy, self.top_speed)
 
 	-- calculate how far to move this frame
 	-- cut off the fractional part; we'll re-add it next frame
@@ -76,37 +79,26 @@ function actor:update_location(dt)
 		end
 
 		if m_time < 1 then
-			if vx >= 1 and ny ~= 0 and nx < 0 then
-				-- going right into a slope up and to the right
+			-- try continuing our movement along the new vector
+			-- if vx >= 1 and ny ~= 0 and nx < 0 then
+			-- 	-- going right into a slope up and to the right
+			-- 	hit, mx, my, m_time, nx, ny = physics.map_collision_aabb_sweep({x = mx, y = my, half_h = self.half_h, half_w = self.half_w},
+			-- 		mymath.abs_ceil(self.dx * dt * (1 - m_time)), -mymath.abs_ceil(self.dx * dt * (1 - m_time)))
+			-- elseif vx <= -1 and ny ~= 0 and nx > 0 then
+			-- 	-- going left into a slope up and to the left
+			-- 	hit, mx, my, m_time, nx, ny = physics.map_collision_aabb_sweep({x = mx, y = my, half_h = self.half_h, half_w = self.half_w},
+			-- 		mymath.abs_ceil(self.dx * dt * (1 - m_time)), mymath.abs_ceil(self.dx * dt * (1 - m_time)))
+			-- else
 				hit, mx, my, m_time, nx, ny = physics.map_collision_aabb_sweep({x = mx, y = my, half_h = self.half_h, half_w = self.half_w},
-					mymath.abs_ceil(vx * (1 - m_time)), -mymath.abs_ceil(vx * (1 - m_time)))
-				if hit then
-					r = self.dx * ny - self.dy * nx
+																			   mymath.abs_ceil(self.dx * dt * (1 - m_time)),
+																			   mymath.abs_ceil(self.dy * dt * (1 - m_time)))
+			-- end
 
-					self.dx = r * ny
-					self.dy = r * (-nx)
-				end
-			elseif vx <= -1 and ny ~= 0 and nx > 0 then
-				-- going left into a slope up and to the left
-				hit, mx, my, m_time, nx, ny = physics.map_collision_aabb_sweep({x = mx, y = my, half_h = self.half_h, half_w = self.half_w},
-					mymath.abs_ceil(vx * (1 - m_time)), mymath.abs_ceil(vx * (1 - m_time)))
-				if hit then
-					r = self.dx * ny - self.dy * nx
+			if hit then
+				r = self.dx * ny - self.dy * nx
 
-					self.dx = r * ny
-					self.dy = r * (-nx)
-				end
-			else
-				-- try continuing our movement along the new vector
-				hit, mx, my, m_time, nx, ny = physics.map_collision_aabb_sweep({x = mx, y = my, half_h = self.half_h, half_w = self.half_w},
-																			   mymath.abs_floor(self.dx * dt * (1 - m_time + 1E-5)),
-																			   mymath.abs_floor(self.dy * dt * (1 - m_time + 1E-5)))
-				if hit then
-					r = self.dx * ny - self.dy * nx
-
-					self.dx = r * ny
-					self.dy = r * (-nx)
-				end
+				self.dx = r * ny
+				self.dy = r * (-nx)
 			end
 		end
 	end
