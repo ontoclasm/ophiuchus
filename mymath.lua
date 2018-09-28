@@ -24,6 +24,24 @@ function mymath.clamp(low, n, high) return math.min(math.max(low, n), high) end
 
 function mymath.vector_length(x, y) return (x^2+y^2)^0.5 end
 
+function mymath.normalize(x, y)
+	if x == 0 and y == 0 then
+		return 0,0
+	else
+		local k = (x^2+y^2)^(-0.5)
+		return x * k, y * k
+	end
+end
+
+function mymath.set_vector_length(x, y, len)
+	if (x == 0 and y == 0) or len == 0 then
+		return 0,0
+	else
+		local k = (x^2+y^2)^(-0.5)
+		return x * len * k, y * len * k
+	end
+end
+
 function mymath.dist(x1,y1, x2,y2) return ((x2-x1)^2+(y2-y1)^2)^0.5 end
 
 function mymath.collision(a, b)

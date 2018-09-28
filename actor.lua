@@ -24,27 +24,43 @@ local hit
 local block_type
 function actor:update_location(dt)
 	-- separate out the integer part of our motion
-	if self.controls.x ~= 0 then
-		self.dx = self.dx + self.controls.x * self.walk_accel * dt
-	elseif self.dx > 0 then
-		self.dx = math.max(0, self.dx - self.walk_friction * dt)
-	elseif self.dx < 0 then
-		self.dx = math.min(0, self.dx + self.walk_friction * dt)
-	end
-
-	if self.controls.jump then
-		self.dy = -self.jump_speed
-	else
-		grounded = physics.map_collision_aabb_sweep(self, 0, 1)
-		if not grounded then
-			self.dy = self.dy + gravity * dt
-		-- else
-		-- 	self.dy = self.dy + 0.5 * gravity * dt
+	if self.controls.x ~= 0 or self.controls.y ~= 0 then
+		if self.controls.x == 0 then
+			if self.controls.y * self.dy < 0 then
+				-- quick reverse
+				self.dy = self.dy * 0.9
+			end
+			self.dx = mymath.abs_subtract(self.dx, self.walk_accel * dt)
+			self.dy = self.dy + self.controls.y * self.walk_accel * dt
+		elseif self.controls.y == 0 then
+			if self.controls.x * self.dx < 0 then
+				-- quick reverse
+				self.dx = self.dx * 0.9
+			end
+			self.dx = self.dx + self.controls.x * self.walk_accel * dt
+			self.dy = mymath.abs_subtract(self.dy, self.walk_accel * dt)
+		else
+			if self.controls.x * self.dx < 0 then
+				-- quick reverse
+				self.dx = self.dx * 0.9
+			end
+			if self.controls.y * self.dy < 0 then
+				-- quick reverse
+				self.dy = self.dy * 0.9
+			end
+			self.dx = self.dx + self.controls.x * self.walk_accel * dt * ROOT_2_OVER_2
+			self.dy = self.dy + self.controls.y * self.walk_accel * dt * ROOT_2_OVER_2
 		end
+	else
+		self.dx = mymath.abs_subtract(self.dx, self.walk_accel * dt)
+		self.dy = mymath.abs_subtract(self.dy, self.walk_accel * dt)
 	end
 
-	self.dx = mymath.clamp(-self.top_speed, self.dx, self.top_speed)
-	-- self.dy = mymath.clamp(-self.top_speed, self.dy, self.top_speed)
+	-- slow down if we're going too fast
+	local current_speed = mymath.vector_length(self.dx, self.dy)
+	if current_speed > self.top_speed then
+		self.dx, self.dy = mymath.set_vector_length(self.dx, self.dy, math.max(self.top_speed, current_speed - self.walk_friction * dt))
+	end
 
 	-- calculate how far to move this frame
 	-- cut off the fractional part; we'll re-add it next frame
