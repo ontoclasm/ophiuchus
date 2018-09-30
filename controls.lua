@@ -70,7 +70,7 @@ function controls.process(a)
 					 y = player.y + mymath.round(aim_distance * (jy / norm)) - camera.y}
 		end
 	else
-		mouse = {x = love.mouse.getX(), y = love.mouse.getY()}
+		mouse = {x = lovepixels.mousex, y = lovepixels.mousey}
 	end
 	a.controls.aim_x, a.controls.aim_y = mouse.x + camera.x, mouse.y + camera.y
 

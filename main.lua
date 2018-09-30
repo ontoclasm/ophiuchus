@@ -1,12 +1,14 @@
 require "requires"
 
 function love.load()
+	lovepixels = require "lib/lovepixels"
+	lovepixels:load(2) -- Starting Scale
 	guitime, ctime, guiframe, cframe = 0,0,0,0
 
+	love.window.setMode(1600, 800)
 	window = {}
-	window.w, window.h = 960, 600
-	love.window.setMode(window.w, window.h)
-	love.graphics.setBackgroundColor(color.bg)
+	window.w, window.h = 1600, 800
+	love.graphics.setBackgroundColor(color.rouge)
 
 	shader_desaturate = love.graphics.newShader("desaturate.lua")
 
@@ -14,7 +16,7 @@ function love.load()
 
 	love.mouse.setVisible(false)
 	love.mouse.setGrabbed(true)
-	mouse = {x = love.mouse.getX(), y = love.mouse.getY()}
+	mouse = {x = 0, y = 0}
 
 	font = love.graphics.newImageFont("art/font.png",
 		" abcdefghijklmnopqrstuvwxyz" ..
@@ -56,6 +58,9 @@ end
 local time_acc = 0
 local TIMESTEP = 1/60
 function love.update(dt)
+	lovepixels:pixelMouse()
+	lovepixels:calcOffset()
+
 	time_acc = time_acc + dt
 
 	while time_acc >= TIMESTEP do
@@ -84,12 +89,13 @@ function love.update(dt)
 end
 
 function love.draw()
+	lovepixels:drawGameArea()
 	if game_state == "pause" then
 		love.graphics.setShader(shader_desaturate)
 	end
 
-	love.graphics.setCanvas(game_canvas)
-	love.graphics.clear()
+	-- love.graphics.setCanvas(game_canvas)
+	-- love.graphics.clear()
 
 	img.update_tileset_batch()
 	love.graphics.draw(img.tileset_batch, -(camera.x % 8), -(camera.y % 8))
@@ -121,8 +127,9 @@ function love.draw()
 		draw_pause_menu()
 	end
 
-	love.graphics.setCanvas()
-	love.graphics.draw(game_canvas, 0, 0, 0, 4)
+	-- love.graphics.setCanvas()
+	-- love.graphics.draw(game_canvas)
+	lovepixels:endDrawGameArea()
 end
 
 function love.keypressed(key, unicode)
