@@ -1,12 +1,11 @@
 require "requires"
 
 function love.load()
-	lovepixels:load(2) -- Starting Scale
 	guitime, ctime, guiframe, cframe = 0,0,0,0
 
-	love.window.setMode(1600, 800)
+	lovepixels:load() -- use the largest integer scale that fits on screen
 	window = {}
-	window.w, window.h = 1600, 800
+	window.w, window.h = 320, 180
 	love.graphics.setBackgroundColor(color.rouge)
 
 	shader_desaturate = love.graphics.newShader("desaturate.lua")
@@ -56,6 +55,7 @@ end
 local time_acc = 0
 local TIMESTEP = 1/60
 function love.update(dt)
+	-- update lovepixel stuff
 	lovepixels:pixelMouse()
 	lovepixels:calcOffset()
 
