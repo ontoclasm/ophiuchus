@@ -8,16 +8,10 @@ function actor:new(o)
 end
 
 function actor:update(dt)
-	self:update_controls(dt)
-	self:update_location(dt)
-end
-
-function actor:update_controls(dt)
-	if self.ai.control == "player" then
-		controls.process(self)
-	elseif self.ai.control == "enemy" then
-		ai.process(self)
+	if self.controls then
+		self.controls:update()
 	end
+	self:update_location(dt)
 end
 
 local hit

@@ -1,7 +1,6 @@
 require "requires"
 
 function love.load()
-	lovepixels = require "lib/lovepixels"
 	lovepixels:load(2) -- Starting Scale
 	guitime, ctime, guiframe, cframe = 0,0,0,0
 
@@ -12,8 +11,7 @@ function love.load()
 
 	shader_desaturate = love.graphics.newShader("desaturate.lua")
 
-	controller = controls.setup()
-
+	controller = input.setup_controller()
 	love.mouse.setVisible(false)
 	love.mouse.setGrabbed(true)
 	mouse = {x = 0, y = 0}
@@ -44,7 +42,7 @@ function love.load()
 			half_w = 4, half_h = 4,
 			sprite = "player", color = color.rouge, flash_color = color.white, flash_time = 0,
 			facing = 'r', anim_start = ctime,
-			ai = {control = "player"}, controls = {},
+			ai_type = "player", controls = player_controls,
 			top_speed = 100,
 			walk_accel = 400, walk_friction = 400,
 			jump_speed = 120, air_accel = 200,
@@ -69,6 +67,8 @@ function love.update(dt)
 
 		-- handle input
 		controller:update()
+		mouse = {x = lovepixels.mousex, y = lovepixels.mousey}
+
 		if game_state == "play" then
 			if controller:pressed('menu') then
 				pause()
