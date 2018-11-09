@@ -33,23 +33,46 @@ function love.load()
 
 	gravity = 200
 
-	player = actor:new(
-		{
-			class = "player", id = 1, name = "player1", faction = "player",
-			x = 50, y = 50,
-			dx = 0, dy = 0, dx_acc = 0, dy_acc = 0,
-			half_w = 4, half_h = 4,
-			sprite = "player", color = color.rouge, flash_color = color.white, flash_time = 0,
-			facing = 'r', anim_start = ctime,
-			ai_type = "player", controls = player_controls,
-			top_speed = 100,
-			walk_accel = 400, walk_friction = 400,
-			jump_speed = 120, air_accel = 200,
-			dash_speed = 200, dash_dur = 0.3, dash_cooldown = 0.1,
-			touching_floor = false, double_jumps = 0, double_jumps_max = 2,
-			hp = 1000, status = {},
-			shot_cooldown = 0, cof = 0, cof_factor = 0
-		})
+	-- component holders
+	c_identities = {}
+	c_positions = {}
+	c_movements = {}
+	c_controls = {}
+	c_drawables = {}
+
+	player_id = idcounter.get_id("entity")
+	c_identities[player_id] =	{name = "Player"}
+	c_positions[player_id] =	{x = 50, y = 50, half_w = 4, half_h = 4}
+	c_movements[player_id] =	{dx = 0, dy = 0, dx_acc = 0, dy_acc = 0,
+								 top_speed = 100, accel = 400}
+	c_controls[player_id] =		{
+		ai = "player",
+		x = 0, y = 0,
+		aim_x = 0, aim_y = 0,
+		fire_pressed = false, fire_down = false,
+		altfire_pressed = false, altfire_down = false,
+	}
+	c_drawables[player_id] =	{sprite = "player", color = color.rouge,
+								 flash_color = color.white, flash_time = 0,}
+
+
+	-- player = actor:new(
+	-- 	{
+	-- 		class = "player", id = 1, name = "player1", faction = "player",
+	-- 		x = 50, y = 50,
+	-- 		dx = 0, dy = 0, dx_acc = 0, dy_acc = 0,
+	-- 		half_w = 4, half_h = 4,
+	-- 		sprite = "player", color = color.rouge, flash_color = color.white, flash_time = 0,
+	-- 		facing = 'r', anim_start = ctime,
+	-- 		ai_type = "player", controls = player_controls,
+	-- 		top_speed = 100,
+	-- 		walk_accel = 400, walk_friction = 400,
+	-- 		jump_speed = 120, air_accel = 200,
+	-- 		dash_speed = 200, dash_dur = 0.3, dash_cooldown = 0.1,
+	-- 		touching_floor = false, double_jumps = 0, double_jumps_max = 2,
+	-- 		hp = 1000, status = {},
+	-- 		shot_cooldown = 0, cof = 0, cof_factor = 0
+	-- 	})
 end
 
 local time_acc = 0
@@ -77,9 +100,11 @@ function love.update(dt)
 			ctime = ctime + TIMESTEP
 			cframe = cframe + 1
 
-			-- update everything
-			player:update(TIMESTEP)
+			-- update all systems
+			controls.update(TIMESTEP)
+			movement.update(TIMESTEP)
 			camera.update(TIMESTEP)
+
 		elseif game_state == "pause" then
 			if controller:pressed('menu') then unpause() end
 			if controller:pressed('view') then love.event.push("quit") end
@@ -97,10 +122,7 @@ function love.draw()
 	-- love.graphics.setCanvas(game_canvas)
 	-- love.graphics.clear()
 
-	img.update_tileset_batch()
-	love.graphics.draw(img.tileset_batch, -(camera.x % 8), -(camera.y % 8))
-
-	player:draw()
+	img.render()
 
 	-- gui
 
@@ -112,15 +134,15 @@ function love.draw()
 	-- love.graphics.print(player.hp, 20, 20)
 	love.graphics.setColor(color.white)
 	-- debug msg
-	love.graphics.print("Time: "..string.format("%.2f", ctime), 2, window.h/4 - 96)
-	love.graphics.print("FPS: "..love.timer.getFPS(), 2, window.h/4 - 80)
-	love.graphics.print("p: "..player.x..", "..player.y, 2, window.h/4 - 64)
-	love.graphics.print("d: "..mymath.round(player.dx)..", "..mymath.round(player.dy), 2, window.h/4 - 48)
+	love.graphics.print("Time: "..string.format("%.2f", ctime), 2, window.h - 96)
+	love.graphics.print("FPS: "..love.timer.getFPS(), 2, window.h - 80)
+	love.graphics.print("p: "..c_positions[player_id].x..", "..c_positions[player_id].y, 2, window.h - 64)
+	love.graphics.print("d: "..mymath.round(c_movements[player_id].dx)..", "..mymath.round(c_movements[player_id].dy), 2, window.h - 48)
 	local dc = love.graphics.getStats()
-	love.graphics.print("draws: "..dc.drawcalls, 2, window.h/4 - 32)
-	love.graphics.print(map.grid_at_pos(mouse.x + camera.x)..", "..map.grid_at_pos(mouse.y + camera.y), 2, window.h/4 - 16)
+	love.graphics.print("draws: "..dc.drawcalls, 2, window.h - 32)
+	love.graphics.print(map.grid_at_pos(mouse.x + camera.x)..", "..map.grid_at_pos(mouse.y + camera.y), 2, window.h - 16)
 
-	physics.map_collision_test(player)
+	physics.map_collision_test(c_positions[player_id])
 
 	if game_state == "pause" then
 		love.graphics.setShader()
@@ -173,9 +195,9 @@ end
 
 function draw_pause_menu()
 	love.graphics.setColor(color.rouge)
-	love.graphics.circle("fill", window.w/8, window.h/8, 50)
+	love.graphics.circle("fill", window.w/2, window.h/2, 50)
 	love.graphics.setColor(color.white)
-	love.graphics.printf("Press Q to quit", math.floor(window.w/8 - 100), math.floor(window.h/8 - font:getHeight()/2), 200, "center")
+	love.graphics.printf("Press Q to quit", math.floor(window.w/2 - 100), math.floor(window.h/2 - font:getHeight()/2), 200, "center")
 	love.graphics.setColor(color.white)
 	love.graphics.draw(img.cursor, love.mouse.getX() - 2, love.mouse.getY() - 2)
 end

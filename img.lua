@@ -1,5 +1,23 @@
 img = {tile = {}}
 
+function img.render()
+	img.update_tileset_batch()
+	love.graphics.draw(img.tileset_batch, -(camera.x % 8), -(camera.y % 8))
+
+	-- draw all drawables
+	local pos
+	for k,v in pairs(c_drawables) do
+		pos = c_positions[k]
+		if v.flash_time > ctime then
+			love.graphics.setColor(color.mix(v.color, v.flash_color, 2 * (v.flash_time - ctime)))
+		else
+			love.graphics.setColor(v.color)
+		end
+		love.graphics.draw(img.tileset, img.tile[v.sprite][1],
+						   camera.view_x(pos) - (img.tile_size / 2), camera.view_y(pos) - (img.tile_size / 2))
+	end
+end
+
 function img.setup()
 	img.cursor = love.graphics.newImage("art/cursor.png")
 

@@ -1,13 +1,15 @@
 local camera = { x=0, y=0, rx=0, ry=0, tx=0, ty=0 }
 
 function camera.update(dt)
+	target_pos = c_positions[player_id]
+
 	-- lerp the camera
 	if controller:getActiveDevice() == "joystick" then
-		camera.tx = player.x - window.w/8
-		camera.ty = player.y - window.h/8
+		camera.tx = target_pos.x - window.w/2
+		camera.ty = target_pos.y - window.h/2
 	else
-		camera.tx = player.x - window.w/8
-		camera.ty = player.y - window.h/8
+		camera.tx = target_pos.x - window.w/2
+		camera.ty = target_pos.y - window.h/2
 	end
 
 	-- don't move if it's only a 1px adjustment; this avoids irritating little twitches due to rounding error in some cases
@@ -18,7 +20,7 @@ function camera.update(dt)
 		camera.ry = camera.ry - (camera.ry - camera.ty) * dt * 7
 	-- end
 
-	camera.x, camera.y = math.floor(player.x - window.w/8), math.floor(player.y - window.h/8)
+	camera.x, camera.y = math.floor(target_pos.x - window.w/2), math.floor(target_pos.y - window.h/2)
 end
 
 -- #verifyvenuz
