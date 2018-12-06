@@ -63,52 +63,69 @@ function movement.update(dt)
 			v.dy_acc = v.dy_acc - vy
 		end
 
-		-- collide with the map tiles we're inside
-		-- should return ONLY INTEGERS for mx,my
-		hit, mx, my, m_time, nx, ny = physics.map_collision_aabb_sweep(pos, vx, vy)
+		if v.map_collision == "scrape" then
+			-- collide with the map tiles we're inside
+			-- should return ONLY INTEGERS for mx,my
+			hit, mx, my, m_time, nx, ny = physics.map_collision_aabb_sweep(pos, vx, vy)
 
-		if hit then
-			-- change our vector based on the slope we hit
-			r = v.dx * ny - v.dy * nx
+			if hit then
+				-- change our vector based on the slope we hit
+				r = v.dx * ny - v.dy * nx
 
-			v.dx = r * ny
-			v.dy = r * (-nx)
+				v.dx = r * ny
+				v.dy = r * (-nx)
 
-			-- delete our accumulators if they point into the surface
-			if nx ~= 0 then
-				v.dx_acc = 0
-			end
-			if ny ~= 0 then
-				v.dy_acc = 0
-			end
+				-- delete our accumulators if they point into the surface
+				if nx ~= 0 then
+					v.dx_acc = 0
+				end
+				if ny ~= 0 then
+					v.dy_acc = 0
+				end
 
-			if m_time < 1 then
-				-- try continuing our movement along the new vector
-				-- if vx >= 1 and ny ~= 0 and nx < 0 then
-				-- 	-- going right into a slope up and to the right
-				-- 	hit, mx, my, m_time, nx, ny = physics.map_collision_aabb_sweep({x = mx, y = my, half_h = v.half_h, half_w = v.half_w},
-				-- 		mymath.abs_ceil(v.dx * dt * (1 - m_time)), -mymath.abs_ceil(v.dx * dt * (1 - m_time)))
-				-- elseif vx <= -1 and ny ~= 0 and nx > 0 then
-				-- 	-- going left into a slope up and to the left
-				-- 	hit, mx, my, m_time, nx, ny = physics.map_collision_aabb_sweep({x = mx, y = my, half_h = v.half_h, half_w = v.half_w},
-				-- 		mymath.abs_ceil(v.dx * dt * (1 - m_time)), mymath.abs_ceil(v.dx * dt * (1 - m_time)))
-				-- else
-					hit, mx, my, m_time, nx, ny = physics.map_collision_aabb_sweep({x = mx, y = my, half_h = pos.half_h, half_w = pos.half_w},
-																				   mymath.abs_ceil(v.dx * dt * (1 - m_time)),
-																				   mymath.abs_ceil(v.dy * dt * (1 - m_time)))
-				-- end
+				if m_time < 1 then
+					-- try continuing our movement along the new vector
+					-- if vx >= 1 and ny ~= 0 and nx < 0 then
+					-- 	-- going right into a slope up and to the right
+					-- 	hit, mx, my, m_time, nx, ny = physics.map_collision_aabb_sweep({x = mx, y = my, half_h = v.half_h, half_w = v.half_w},
+					-- 		mymath.abs_ceil(v.dx * dt * (1 - m_time)), -mymath.abs_ceil(v.dx * dt * (1 - m_time)))
+					-- elseif vx <= -1 and ny ~= 0 and nx > 0 then
+					-- 	-- going left into a slope up and to the left
+					-- 	hit, mx, my, m_time, nx, ny = physics.map_collision_aabb_sweep({x = mx, y = my, half_h = v.half_h, half_w = v.half_w},
+					-- 		mymath.abs_ceil(v.dx * dt * (1 - m_time)), mymath.abs_ceil(v.dx * dt * (1 - m_time)))
+					-- else
+						hit, mx, my, m_time, nx, ny = physics.map_collision_aabb_sweep({x = mx, y = my, half_h = pos.half_h, half_w = pos.half_w},
+																					   mymath.abs_ceil(v.dx * dt * (1 - m_time)),
+																					   mymath.abs_ceil(v.dy * dt * (1 - m_time)))
+					-- end
 
-				if hit then
-					r = v.dx * ny - v.dy * nx
+					if hit then
+						r = v.dx * ny - v.dy * nx
 
-					v.dx = r * ny
-					v.dy = r * (-nx)
+						v.dx = r * ny
+						v.dy = r * (-nx)
+					end
 				end
 			end
-		end
 
-		pos.x = mx
-		pos.y = my
+			pos.x = mx
+			pos.y = my
+		elseif v.map_collision == "explode" then
+			-- collide with the map tiles we're inside
+			-- should return ONLY INTEGERS for mx,my
+			hit, mx, my, m_time, nx, ny = physics.map_collision_aabb_sweep(pos, vx, vy)
+
+			if hit then
+				ecs.delete_entity(k)
+			else
+				pos.x = mx
+				pos.y = my
+			end
+		else
+			-- no map collision
+			pos.x = pos.x + vx
+			pos.y = pos.y + vy
+		end
 	end
 end
 
