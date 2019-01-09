@@ -45,7 +45,7 @@ function love.load()
 	c_identities[player_id] =	{name = "Player"}
 	c_positions[player_id] =	{x = 50, y = 50, half_w = 4, half_h = 4}
 	c_movements[player_id] =	{dx = 0, dy = 0, dx_acc = 0, dy_acc = 0, map_collision = "scrape",
-								 top_speed = 100, accel = 400, grounded = false}
+								 top_speed = 100, accel = 5, grounded = false}
 	c_controls[player_id] =		{
 		ai = "player",
 		x = 0, y = 0,
@@ -105,7 +105,7 @@ function love.update(dt)
 			-- update all systems
 			controls.update(TIMESTEP)
 			movement.update(TIMESTEP)
-			weapons.update(TIMESTEP)
+			-- weapons.update(TIMESTEP)
 			camera.update(TIMESTEP)
 
 		elseif game_state == "pause" then
