@@ -11,7 +11,12 @@ function img.render()
 		if v.flash_time > ctime then
 			love.graphics.setColor(color.mix(v.color, v.flash_color, 2 * (v.flash_time - ctime)))
 		else
-			love.graphics.setColor(v.color)
+			-- debug
+			if k == player_id and c_movements[k].grounded then
+				love.graphics.setColor(color.orange)
+			else
+				love.graphics.setColor(v.color)
+			end
 		end
 		love.graphics.draw(img.tileset, img.tile[v.sprite][1],
 						   camera.view_x(pos) - (img.tile_size / 2), camera.view_y(pos) - (img.tile_size / 2))

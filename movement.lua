@@ -121,7 +121,14 @@ function movement.update(dt)
 			pos.x = pos.x + vx
 			pos.y = pos.y + vy
 		end
+
+		-- check if we're on the ground
+		v.grounded = movement.touching_down(pos)
 	end
+end
+
+function movement.touching_down(a)
+	return physics.map_collision_aabb({x = a.x, y = a.y + a.half_h, half_w = a.half_w, half_h = 1})
 end
 
 return movement
