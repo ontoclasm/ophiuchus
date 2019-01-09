@@ -44,13 +44,6 @@ end
 
 function mymath.dist(x1,y1, x2,y2) return ((x2-x1)^2+(y2-y1)^2)^0.5 end
 
-function mymath.collision(a, b)
-	return a.x < b.x+b.w and
-		   b.x < a.x+a.w and
-		   a.y < b.y+b.h and
-		   b.y < a.y+a.h
-end
-
 local window_border = 32
 function mymath.in_window(x, y)
 	return (camera.x - window_border <= x and x < (camera.x + window.w + window_border)

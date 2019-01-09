@@ -7,7 +7,7 @@ end
 function weapons.spawn_shot(kind, start_x, start_y, dx, dy)
 	id = idcounter.get_id("entity")
 	c_identities[id] =	{name = "Pellet"}
-	c_positions[id] =	{x = start_x, y = start_y, half_w = 4, half_h = 4}
+	c_positions[id] =	{x = start_x, y = start_y, half_w = 1, half_h = 1}
 	c_movements[id] =	{dx = dx, dy = dy, dx_acc = 0, dy_acc = 0, map_collision = "explode"}
 	c_drawables[id] =	{sprite = "bullet_23", color = color.rouge,
 						 flash_color = color.white, flash_time = 0,}

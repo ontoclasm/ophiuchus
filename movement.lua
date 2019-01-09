@@ -55,13 +55,8 @@ function movement.update(dt)
 		v.dx_acc = v.dx_acc + v.dx * dt
 		v.dy_acc = v.dy_acc + v.dy * dt
 		vx, vy = mymath.abs_floor(v.dx_acc), mymath.abs_floor(v.dy_acc)
-		if v.dx == 0 and v.dy == 0 then
-			-- forget the acc
-			v.dx_acc, v.dy_acc = 0, 0
-		else
-			v.dx_acc = v.dx_acc - vx
-			v.dy_acc = v.dy_acc - vy
-		end
+		v.dx_acc = v.dx_acc - vx
+		v.dy_acc = v.dy_acc - vy
 
 		if v.map_collision == "scrape" then
 			-- collide with the map tiles we're inside
