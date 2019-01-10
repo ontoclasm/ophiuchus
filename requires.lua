@@ -18,5 +18,6 @@ block_data = require "block_data"
 
 -- constants
 PI = math.pi
+PI_2 = math.pi / 2
 ROOT_2 = math.sqrt(2)
 ROOT_2_OVER_2 = math.sqrt(2) / 2

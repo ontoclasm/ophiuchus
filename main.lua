@@ -31,7 +31,7 @@ function love.load()
 	game_canvas = love.graphics.newCanvas()
 	game_canvas:setFilter("linear", "nearest")
 
-	gravity = 200
+	gravity = 400
 
 	-- component holders
 	c_identities = {}
@@ -45,7 +45,7 @@ function love.load()
 	c_identities[player_id] =	{name = "Player"}
 	c_positions[player_id] =	{x = 50, y = 50, half_w = 4, half_h = 4}
 	c_movements[player_id] =	{dx = 0, dy = 0, dx_acc = 0, dy_acc = 0, map_collision = "scrape",
-								 top_speed = 60, accel = 5, grounded = false, touching_left = false, touching_right = false,}
+								 top_speed = 60, accel = 5, air_accel = 2, grounded = false, touching_left = false, touching_right = false,}
 	c_controls[player_id] =		{
 		ai = "player",
 		x = 0, y = 0,

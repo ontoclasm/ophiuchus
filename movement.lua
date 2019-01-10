@@ -21,21 +21,22 @@ function movement.update(dt)
 		v.touching_left = movement.touching_left(pos)
 		v.touching_right = movement.touching_right(pos)
 
-		-- xxx use abs_subtract?
-		if v.dx >= dx_goal then
-			v.dx = math.max(dx_goal, v.dx - v.accel * dt)
-		else
-			v.dx = math.min(dx_goal, v.dx + v.accel * dt)
-		end
-
-		if v.dx > 0 and v.touching_right then
-			v.dx = 0
-		elseif v.dx < 0 and v.touching_left then
-			v.dx = 0
-		end
-
 		if v.grounded then
 			-- on ground
+
+			-- xxx use abs_subtract?
+			if v.dx >= dx_goal then
+				v.dx = math.max(dx_goal, v.dx - v.accel * dt)
+			else
+				v.dx = math.min(dx_goal, v.dx + v.accel * dt)
+			end
+
+			if v.dx > 0 and v.touching_right then
+				v.dx = 0
+			elseif v.dx < 0 and v.touching_left then
+				v.dx = 0
+			end
+
 			v.dy = 0
 
 			v.dx_acc = v.dx_acc + v.dx * v.top_speed * dt
@@ -72,6 +73,19 @@ function movement.update(dt)
 			end
 		else
 			-- in air
+
+			-- xxx use abs_subtract?
+			if v.dx >= dx_goal then
+				v.dx = math.max(dx_goal, v.dx - v.air_accel * dt)
+			else
+				v.dx = math.min(dx_goal, v.dx + v.air_accel * dt)
+			end
+
+			if v.dx > 0 and v.touching_right then
+				v.dx = 0
+			elseif v.dx < 0 and v.touching_left then
+				v.dx = 0
+			end
 
 			-- apply gravity
 			if v.dy >= 1 then
