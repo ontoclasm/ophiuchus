@@ -45,7 +45,7 @@ function love.load()
 	c_identities[player_id] =	{name = "Player"}
 	c_positions[player_id] =	{x = 50, y = 50, half_w = 4, half_h = 4}
 	c_movements[player_id] =	{dx = 0, dy = 0, dx_acc = 0, dy_acc = 0, map_collision = "scrape",
-								 top_speed = 100, accel = 5, grounded = false}
+								 top_speed = 60, accel = 5, grounded = false, touching_left = false, touching_right = false,}
 	c_controls[player_id] =		{
 		ai = "player",
 		x = 0, y = 0,
@@ -140,8 +140,8 @@ function love.draw()
 	love.graphics.print("Time: "..string.format("%.2f", ctime), 2, window.h - 96)
 	love.graphics.print("FPS: "..love.timer.getFPS(), 2, window.h - 80)
 	love.graphics.print("p: "..c_positions[player_id].x..", "..c_positions[player_id].y, 2, window.h - 64)
-	-- love.graphics.print("d: "..mymath.round(c_movements[player_id].dx)..", "..mymath.round(c_movements[player_id].dy), 2, window.h - 48)
-	love.graphics.print("pressed: "..(c_controls[player_id].fire_pressed and "t" or "f") ..", down: "..(c_controls[player_id].fire_down and "t" or "f"), 2, window.h - 48)
+	love.graphics.print("d: "..string.format("%.2f", c_movements[player_id].dx)..", "..string.format("%.2f", c_movements[player_id].dy), 2, window.h - 48)
+	-- love.graphics.print("pressed: "..(c_controls[player_id].fire_pressed and "t" or "f") ..", down: "..(c_controls[player_id].fire_down and "t" or "f"), 2, window.h - 48)
 	local dc = love.graphics.getStats()
 	love.graphics.print("draws: "..dc.drawcalls, 2, window.h - 32)
 	love.graphics.print(map.grid_at_pos(mouse.x + camera.x)..", "..map.grid_at_pos(mouse.y + camera.y), 2, window.h - 16)

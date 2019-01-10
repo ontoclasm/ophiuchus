@@ -9,11 +9,17 @@ function movement.update(dt)
 		controls = c_controls[k]
 		dx_goal = controls and controls.x or 0
 
-		-- jump
+		-- jump if necessary and check for groundedness
 		if controls and v.grounded and controls.y ~= 0 then
 			v.grounded = false
 			v.dy = -0.4
+		else
+			v.grounded = movement.touching_down(pos)
 		end
+
+		-- check adjacent walls
+		v.touching_left = movement.touching_left(pos)
+		v.touching_right = movement.touching_right(pos)
 
 		-- xxx use abs_subtract?
 		if v.dx >= dx_goal then
@@ -22,7 +28,12 @@ function movement.update(dt)
 			v.dx = math.min(dx_goal, v.dx + v.accel * dt)
 		end
 
-		-- xxx do we need to recheck groundedness?
+		if v.dx > 0 and v.touching_right then
+			v.dx = 0
+		elseif v.dx < 0 and v.touching_left then
+			v.dx = 0
+		end
+
 		if v.grounded then
 			-- on ground
 			v.dy = 0
@@ -54,7 +65,6 @@ function movement.update(dt)
 						else
 							-- welp
 							stuck = true
-							v.dx = 0
 						end
 					end
 				end
@@ -274,10 +284,21 @@ function movement.update(dt)
 	end
 end
 
+function movement.touching_up(a)
+	return physics.map_collision_aabb({x = a.x, y = a.y - a.half_h, half_w = a.half_w, half_h = 1})
+end
+
 function movement.touching_down(a)
 	return physics.map_collision_aabb({x = a.x, y = a.y + a.half_h, half_w = a.half_w, half_h = 1})
 end
 
+function movement.touching_left(a)
+	-- reduce height by 1 pixel in order to ignore slopes
+	return physics.map_collision_aabb({x = a.x - a.half_w, y = a.y - 0.5, half_w = 1, half_h = a.half_h - 1})
+end
 
+function movement.touching_right(a)
+	return physics.map_collision_aabb({x = a.x + a.half_w, y = a.y - 0.5, half_w = 1, half_h = a.half_h - 1})
+end
 
 return movement
