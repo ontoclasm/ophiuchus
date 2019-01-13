@@ -18,7 +18,7 @@ function physics.collision_aabb_slope(a, b, slope, slope_y_offset, slope_vert_mu
 										   y = b.y + (bhm.d - bhm.u) * 0.5 * b.half_h,
 										   half_w = b.half_w * 0.5 * (bhm.r + bhm.l),
 										   half_h = b.half_h * 0.5 * (bhm.d + bhm.u)}) and
-		a.y + a.half_h - 1E-5 > slope * (a.x - (a.half_w - 1E-5) * mymath.sign(slope) - b.x) + b.y + slope_y_offset
+		a.y * slope_vert_multiplier + (a.half_h - 1E-5) > (slope * (a.x - (a.half_w - 1E-5) * slope_vert_multiplier * mymath.sign(slope) - b.x) + b.y + slope_y_offset) * slope_vert_multiplier
 end
 
 --- test if moving a by (vx,vy) will cause it to hit b
@@ -260,8 +260,7 @@ function physics.map_collision_aabb(a)
 				block_type = mainmap:block_at(i, j)
 				box = map.bounding_box(i, j)
 
-				if block_data[block_type].slope and
-				   not (mainmap:grid_has_collision(i, j-1) and (block_type == "slope_23_b" or block_type == "slope_-23_b")) then
+				if block_data[block_type].slope then
 					if physics.collision_aabb_slope(
 						a, box,
 						block_data[block_type].slope, block_data[block_type].slope_y_offset, block_data[block_type].slope_vert_multiplier,
@@ -292,8 +291,7 @@ function physics.map_collision_aabb_sweep(a, vx, vy)
 				block_type = mainmap:block_at(i, j)
 				box = map.bounding_box(i, j)
 
-				if block_data[block_type].slope and
-				   not (mainmap:grid_has_collision(i, j-1) and (block_type == "slope_23_b" or block_type == "slope_-23_b"))then
+				if block_data[block_type].slope then
 					hx, hy, ht, nx, ny = physics.collision_aabb_sweep_slope(
 						a, box, vx, vy,
 						block_data[block_type].slope, block_data[block_type].slope_y_offset, block_data[block_type].slope_vert_multiplier,
