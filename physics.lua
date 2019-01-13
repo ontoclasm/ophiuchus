@@ -12,7 +12,7 @@ function physics.collision_aabb_aabb(a, b)
 		   b.y - b.half_h < a.y+a.half_h
 end
 
-function physics.collision_aabb_slope(a, b, slope, slope_y_offset, bhm)
+function physics.collision_aabb_slope(a, b, slope, slope_y_offset, slope_vert_multiplier, bhm)
 	-- this assumes the relevant corner to hit the slope is a bottom corner
 	return physics.collision_aabb_aabb(a, {x = b.x + (bhm.r - bhm.l) * 0.5 * b.half_w,
 										   y = b.y + (bhm.d - bhm.u) * 0.5 * b.half_h,
@@ -98,7 +98,7 @@ end
 
 local rx, ry, norm
 
-function physics.collision_aabb_sweep_slope(a, b, vx, vy, slope, slope_y_offset, bhm)
+function physics.collision_aabb_sweep_slope(a, b, vx, vy, slope, slope_y_offset, slope_vert_multiplier, bhm)
 	ax, bx =  a.x, b.x
 	sign_x = mymath.sign(vx)
 	scale_x = 1 / vx
@@ -147,8 +147,8 @@ function physics.collision_aabb_sweep_slope(a, b, vx, vy, slope, slope_y_offset,
 	-- ugh, now deal with the slanted edge
 
 	-- coords of the relevant corner of a; currently this is always a bottom corner
-	rx = ax - (a.half_w - 1E-5) * mymath.sign(slope)
-	ry = ay + a.half_h - 1E-5
+	rx = ax - (a.half_w - 1E-5) * slope_vert_multiplier * mymath.sign(slope)
+	ry = ay + (a.half_h - 1E-5) * slope_vert_multiplier
 
 	if vx ~= 0 then
 		-- find the x distance traveled; divide by vx to find near_time_q
@@ -163,7 +163,7 @@ function physics.collision_aabb_sweep_slope(a, b, vx, vy, slope, slope_y_offset,
 		near_time_q = (slope * (rx - bx) + by + slope_y_offset - ry) * scale_y
 	end
 
-	if ry > slope * (rx - bx) + by + slope_y_offset then
+	if ry * slope_vert_multiplier > (slope * (rx - bx) + by + slope_y_offset) * slope_vert_multiplier then
 		if near_time_q < 0 then
 			-- below and moving away
 			far_time_q = 9999
@@ -200,7 +200,7 @@ function physics.collision_aabb_sweep_slope(a, b, vx, vy, slope, slope_y_offset,
 	hit_time = mymath.clamp(0, near_time, 1)
 	if near_time_q > near_time_x and near_time_q > near_time_y then
 		-- normal to the slope
-		norm = math.sqrt(math.pow(slope, 2) + 1)
+		norm = slope_vert_multiplier * math.sqrt(math.pow(slope, 2) + 1)
 		nx = slope / norm
 		ny = - 1 / norm
 
@@ -264,7 +264,7 @@ function physics.map_collision_aabb(a)
 				   not (mainmap:grid_has_collision(i, j-1) and (block_type == "slope_23_b" or block_type == "slope_-23_b")) then
 					if physics.collision_aabb_slope(
 						a, box,
-						block_data[block_type].slope, block_data[block_type].slope_y_offset,
+						block_data[block_type].slope, block_data[block_type].slope_y_offset, block_data[block_type].slope_vert_multiplier,
 						block_data.get_box_half_multipliers(block_type)) then
 						return true
 					end
@@ -296,7 +296,7 @@ function physics.map_collision_aabb_sweep(a, vx, vy)
 				   not (mainmap:grid_has_collision(i, j-1) and (block_type == "slope_23_b" or block_type == "slope_-23_b"))then
 					hx, hy, ht, nx, ny = physics.collision_aabb_sweep_slope(
 						a, box, vx, vy,
-						block_data[block_type].slope, block_data[block_type].slope_y_offset,
+						block_data[block_type].slope, block_data[block_type].slope_y_offset, block_data[block_type].slope_vert_multiplier,
 						block_data.get_box_half_multipliers(block_type))
 				else
 					hx, hy, ht, nx, ny = physics.collision_aabb_sweep(a, box, vx, vy)
@@ -358,7 +358,7 @@ function physics.map_collision_test(a)
 				if block_data[block_type].slope then
 					ijhx, ijhy, ijht, ijnx, ijny = physics.collision_aabb_sweep_slope(
 						a, box, vx, vy,
-						block_data[block_type].slope, block_data[block_type].slope_y_offset,
+						block_data[block_type].slope, block_data[block_type].slope_y_offset, block_data[block_type].slope_vert_multiplier,
 						block_data.get_box_half_multipliers(block_type))
 				else
 					ijhx, ijhy, ijht, ijnx, ijny = physics.collision_aabb_sweep(a, box, vx, vy)

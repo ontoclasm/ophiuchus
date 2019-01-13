@@ -153,8 +153,8 @@ function love.draw()
 	-- love.graphics.print(map.grid_at_pos(mouse.x + camera.x)..", "..map.grid_at_pos(mouse.y + camera.y), 2, window.h - 16)
 	love.graphics.print("* Jackdaws of Quartz *", 2, window.h - 16)
 
-	-- physics.map_collision_test(c_positions[player_id])
-	physics.map_collision_test2({x = mouse.x + camera.x, y = mouse.y + camera.y, half_w = 4, half_h = 4})
+	physics.map_collision_test(c_positions[player_id])
+	-- physics.map_collision_test2({x = mouse.x + camera.x, y = mouse.y + camera.y, half_w = 4, half_h = 4})
 
 	if game_state == "pause" then
 		love.graphics.setShader()

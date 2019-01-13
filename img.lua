@@ -51,6 +51,9 @@ function img.setup()
 	img.nq_break_block("slope_23_b",	 9,  2)
 	img.nq_break_block("slope_-23_a",	12,  2)
 	img.nq_break_block("slope_-23_b",	 0,  3)
+	img.nq_break_block("islope_45",		 3,  3)
+	img.nq_break_block("islope_-45",	 6,  3)
+
 
 	img.nq("player",			 0,	 4)
 

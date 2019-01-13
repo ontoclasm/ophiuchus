@@ -5,7 +5,7 @@ function ecs.spawn_shot(kind, start_x, start_y, dx, dy, speed)
 	c_identities[id] =	{name = "Pellet", birth_frame = game_frame}
 	c_positions[id] =	{x = start_x, y = start_y, half_w = 1, half_h = 1}
 	c_movements[id] =	{kind = "projectile", dx = dx, dy = dy, dx_acc = 0, dy_acc = 0, speed = speed,
-						 collides_with_map = true, collision_response = "pop"}
+						 collides_with_map = true, collision_response = "bounce"}
 	c_drawables[id] =	{sprite = "bullet_23", color = color.rouge,
 						 flash_color = color.white, flash_time = 0,}
 end

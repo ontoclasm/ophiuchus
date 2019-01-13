@@ -204,20 +204,19 @@ function movement.projectile(k, mov)
 end
 
 function movement.touching_up(a)
-	return physics.map_collision_aabb({x = a.x, y = a.y - a.half_h, half_w = a.half_w, half_h = 1, slope_inset = a.slope_inset})
+	return physics.map_collision_aabb({x = a.x, y = a.y - a.half_h, half_w = a.half_w, half_h = 1})
 end
 
 function movement.touching_down(a)
-	return physics.map_collision_aabb({x = a.x, y = a.y + a.half_h, half_w = a.half_w, half_h = 1, slope_inset = a.slope_inset})
+	return physics.map_collision_aabb({x = a.x, y = a.y + a.half_h, half_w = a.half_w, half_h = 1})
 end
 
 function movement.touching_left(a)
-	-- reduce height by 1 pixel in order to ignore slopes
-	return physics.map_collision_aabb({x = a.x - a.half_w, y = a.y, half_w = 1, half_h = a.half_h, slope_inset = a.slope_inset})
+	return physics.map_collision_aabb({x = a.x - a.half_w, y = a.y, half_w = 1, half_h = a.half_h})
 end
 
 function movement.touching_right(a)
-	return physics.map_collision_aabb({x = a.x + a.half_w, y = a.y, half_w = 1, half_h = a.half_h, slope_inset = a.slope_inset})
+	return physics.map_collision_aabb({x = a.x + a.half_w, y = a.y, half_w = 1, half_h = a.half_h})
 end
 
 ----
