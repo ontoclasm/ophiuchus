@@ -44,7 +44,7 @@ function love.load()
 
 	player_id = idcounter.get_id("entity")
 	c_identities[player_id] =	{name = "Player", birth_frame = 0}
-	c_positions[player_id] =	{x = 50, y = 50, half_w = 2, half_h = 3, slope_inset = 1}
+	c_positions[player_id] =	{x = 50, y = 50, half_w = 3, half_h = 3}
 	c_movements[player_id] =	{kind = "walker", dx = 0, dy = 0, dx_acc = 0, dy_acc = 0,
 								 speed = 1, accel = 0.1, air_accel = 0.05, grounded = false, jumping = false,
 								 touching_left = false, touching_right = false,}
