@@ -4,17 +4,8 @@ function weapons.create(kind)
 	return {kind = kind, ready_time = 0}
 end
 
-function weapons.spawn_shot(kind, start_x, start_y, dx, dy)
-	id = idcounter.get_id("entity")
-	c_identities[id] =	{name = "Pellet"}
-	c_positions[id] =	{x = start_x, y = start_y, half_w = 1, half_h = 1}
-	c_movements[id] =	{dx = dx, dy = dy, dx_acc = 0, dy_acc = 0, map_collision = "explode"}
-	c_drawables[id] =	{sprite = "bullet_23", color = color.rouge,
-						 flash_color = color.white, flash_time = 0,}
-end
-
 local pos, controls, kind
-function weapons.update(dt)
+function weapons.update()
 	for k,v in pairs(c_weapons) do
 		pos = c_positions[k]
 		controls = c_controls[k]
@@ -45,11 +36,10 @@ weapons.kinds["assault"] = {
 	-- end,
 
 	fire_down = function(weapon, start_x, start_y, aim_x, aim_y)
-		if weapon.ready_time < ctime then
+		if weapon.ready_time < game_frame then
 			dx, dy = mymath.normalize(aim_x - start_x, aim_y - start_y)
-			dx, dy = dx * 500, dy * 500
-			weapons.spawn_shot("pellet", start_x, start_y, dx, dy)
-			weapon.ready_time = ctime + 0.2
+			ecs.spawn_shot("pellet", start_x, start_y, dx, dy, 20)
+			weapon.ready_time = game_frame + 8
 		end
 	end,
 

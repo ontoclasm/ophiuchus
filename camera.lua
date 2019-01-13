@@ -1,6 +1,6 @@
 local camera = { x=0, y=0, rx=0, ry=0, tx=0, ty=0 }
 
-function camera.update(dt)
+function camera.update()
 	target_pos = c_positions[player_id]
 
 	-- lerp the camera
@@ -14,10 +14,10 @@ function camera.update(dt)
 
 	-- don't move if it's only a 1px adjustment; this avoids irritating little twitches due to rounding error in some cases
 	-- if math.abs(camera.tx - camera.rx) >= 2 then
-		camera.rx = camera.rx - (camera.rx - camera.tx) * dt * 7
+		camera.rx = camera.rx - (camera.rx - camera.tx) * 0.1
 	-- end
 	-- if math.abs(camera.ty - camera.ry) >= 2 then
-		camera.ry = camera.ry - (camera.ry - camera.ty) * dt * 7
+		camera.ry = camera.ry - (camera.ry - camera.ty) * 0.1
 	-- end
 
 	camera.x, camera.y = math.floor(target_pos.x - window.w/2), math.floor(target_pos.y - window.h/2)

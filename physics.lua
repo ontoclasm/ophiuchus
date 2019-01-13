@@ -18,7 +18,7 @@ function physics.collision_aabb_slope(a, b, slope, slope_y_offset, bhm)
 										   y = b.y + (bhm.d - bhm.u) * 0.5 * b.half_h,
 										   half_w = b.half_w * 0.5 * (bhm.r + bhm.l),
 										   half_h = b.half_h * 0.5 * (bhm.d + bhm.u)}) and
-		a.y + a.half_h - 1E-5 > slope * (a.x - (a.half_w - 1E-5) * mymath.sign(slope) - b.x) + b.y + slope_y_offset
+		a.y + a.half_h - 1E-5 > slope * (a.x - (a.half_w - (a.slope_inset or 0) - 1E-5) * mymath.sign(slope) - b.x) + b.y + slope_y_offset
 end
 
 --- test if moving a by (vx,vy) will cause it to hit b
@@ -147,7 +147,7 @@ function physics.collision_aabb_sweep_slope(a, b, vx, vy, slope, slope_y_offset,
 	-- ugh, now deal with the slanted edge
 
 	-- coords of the relevant corner of a; currently this is always a bottom corner
-	rx = ax - (a.half_w - 1E-5) * mymath.sign(slope)
+	rx = ax - (a.half_w - (a.slope_inset or 0) - 1E-5) * mymath.sign(slope)
 	ry = ay + a.half_h - 1E-5
 
 	if vx ~= 0 then

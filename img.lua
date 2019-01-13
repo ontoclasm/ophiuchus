@@ -8,19 +8,20 @@ function img.render()
 	local pos
 	for k,v in pairs(c_drawables) do
 		pos = c_positions[k]
-		if v.flash_time > ctime then
-			love.graphics.setColor(color.mix(v.color, v.flash_color, 2 * (v.flash_time - ctime)))
+		if v.flash_time > game_frame then
+			love.graphics.setColor(color.mix(v.color, v.flash_color, 2 * (v.flash_time - game_frame)))
 		else
-			-- debug
-			if k == player_id and c_movements[k].grounded then
-				love.graphics.setColor(color.orange)
-			else
+			-- -- debug
+			-- if k == player_id and c_movements[k].grounded then
+			-- 	love.graphics.setColor(color.orange)
+			-- else
 				love.graphics.setColor(v.color)
-			end
+			-- end
 		end
 		love.graphics.draw(img.tileset, img.tile[v.sprite][1],
 						   camera.view_x(pos) - (img.tile_size / 2), camera.view_y(pos) - (img.tile_size / 2))
 	end
+	love.graphics.setColor(color.white)
 end
 
 function img.setup()

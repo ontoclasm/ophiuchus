@@ -4,13 +4,13 @@ local last_key_dir = { l = 0, r = 0, u = 0, d = 0 } -- left right up down
 local doubletap_time = 0.2 -- time to double-tap
 local aim_distance = 32
 
-function controls.update(dt)
+function controls.update()
 	for k,v in pairs(c_controls) do
-		controls[v.ai](v, dt)
+		controls[v.ai](v)
 	end
 end
 
-function controls.player(a, dt)
+function controls.player(a)
 	a.x, a.y = 0, 0
 	if controller:down('dp_left') then a.x = a.x - 1 end
 	if controller:down('dp_right') then a.x = a.x + 1 end

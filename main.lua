@@ -1,7 +1,7 @@
 require "requires"
 
 function love.load()
-	guitime, ctime, guiframe, cframe = 0,0,0,0
+	gui_frame, game_frame = 0,0
 
 	lovepixels:load() -- use the largest integer scale that fits on screen
 	window = {}
@@ -15,7 +15,7 @@ function love.load()
 	love.mouse.setGrabbed(true)
 	mouse = {x = 0, y = 0}
 
-	font = love.graphics.newImageFont("art/font.png",
+	font = love.graphics.newImageFont("art/font_small.png",
 		" abcdefghijklmnopqrstuvwxyz" ..
 		"ABCDEFGHIJKLMNOPQRSTUVWXYZ0" ..
 		"123456789.,!?-+/():;%&`'*#=[]\"")
@@ -31,7 +31,7 @@ function love.load()
 	game_canvas = love.graphics.newCanvas()
 	game_canvas:setFilter("linear", "nearest")
 
-	gravity = 400
+	gravity = 5
 
 	-- component holders
 	c_identities = {}
@@ -40,12 +40,14 @@ function love.load()
 	c_controls = {}
 	c_drawables = {}
 	c_weapons = {}
+	c_timeouts = {}
 
 	player_id = idcounter.get_id("entity")
-	c_identities[player_id] =	{name = "Player"}
-	c_positions[player_id] =	{x = 50, y = 50, half_w = 4, half_h = 4}
-	c_movements[player_id] =	{dx = 0, dy = 0, dx_acc = 0, dy_acc = 0, map_collision = "scrape",
-								 top_speed = 60, accel = 5, air_accel = 2, grounded = false, touching_left = false, touching_right = false,}
+	c_identities[player_id] =	{name = "Player", birth_frame = 0}
+	c_positions[player_id] =	{x = 50, y = 50, half_w = 2, half_h = 3, slope_inset = 1}
+	c_movements[player_id] =	{kind = "walker", dx = 0, dy = 0, dx_acc = 0, dy_acc = 0,
+								 speed = 1, accel = 0.1, air_accel = 0.05, grounded = false, jumping = false,
+								 touching_left = false, touching_right = false,}
 	c_controls[player_id] =		{
 		ai = "player",
 		x = 0, y = 0,
@@ -87,8 +89,7 @@ function love.update(dt)
 	time_acc = time_acc + dt
 
 	while time_acc >= TIMESTEP do
-		guitime = guitime + TIMESTEP
-		guiframe = guiframe + 1
+		gui_frame = gui_frame + 1
 
 		-- handle input
 		controller:update()
@@ -99,15 +100,20 @@ function love.update(dt)
 				pause()
 				return
 			end
-			ctime = ctime + TIMESTEP
-			cframe = cframe + 1
+			game_frame = game_frame + 1
 
 			-- update all systems
-			controls.update(TIMESTEP)
-			movement.update(TIMESTEP)
-			-- weapons.update(TIMESTEP)
-			camera.update(TIMESTEP)
+			for k,v in pairs(c_timeouts) do
+				if game_frame >= v then
+					-- respond to timing out?
+					ecs.delete_entity(k)
+				end
+			end
 
+			controls.update()
+			movement.update()
+			weapons.update()
+			camera.update()
 		elseif game_state == "pause" then
 			if controller:pressed('menu') then unpause() end
 			if controller:pressed('view') then love.event.push("quit") end
@@ -137,14 +143,15 @@ function love.draw()
 	-- love.graphics.print(player.hp, 20, 20)
 	love.graphics.setColor(color.white)
 	-- debug msg
-	love.graphics.print("Time: "..string.format("%.2f", ctime), 2, window.h - 96)
+	love.graphics.print("Time: "..string.format("%.0f", game_frame / 60), 2, window.h - 96)
 	love.graphics.print("FPS: "..love.timer.getFPS(), 2, window.h - 80)
 	love.graphics.print("p: "..c_positions[player_id].x..", "..c_positions[player_id].y, 2, window.h - 64)
-	love.graphics.print("d: "..string.format("%.2f", c_movements[player_id].dx)..", "..string.format("%.2f", c_movements[player_id].dy), 2, window.h - 48)
+	love.graphics.print("d: "..string.format("%+.2f", c_movements[player_id].dx)..", "..string.format("%+.2f", c_movements[player_id].dy), 2, window.h - 48)
 	-- love.graphics.print("pressed: "..(c_controls[player_id].fire_pressed and "t" or "f") ..", down: "..(c_controls[player_id].fire_down and "t" or "f"), 2, window.h - 48)
 	local dc = love.graphics.getStats()
 	love.graphics.print("draws: "..dc.drawcalls, 2, window.h - 32)
-	love.graphics.print(map.grid_at_pos(mouse.x + camera.x)..", "..map.grid_at_pos(mouse.y + camera.y), 2, window.h - 16)
+	-- love.graphics.print(map.grid_at_pos(mouse.x + camera.x)..", "..map.grid_at_pos(mouse.y + camera.y), 2, window.h - 16)
+	love.graphics.print("* Jackdaws of Quartz *", 2, window.h - 16)
 
 	-- physics.map_collision_test(c_positions[player_id])
 	physics.map_collision_test2({x = mouse.x + camera.x, y = mouse.y + camera.y, half_w = 4, half_h = 4})
