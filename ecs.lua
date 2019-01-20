@@ -5,9 +5,30 @@ function ecs.spawn_shot(kind, start_x, start_y, dx, dy)
 	c_identities[id] =	{name = "Pellet", birth_frame = game_frame}
 	c_positions[id] =	{x = start_x, y = start_y, half_w = 1, half_h = 1}
 	c_movements[id] =	{kind = "projectile", dx = dx, dy = dy, dx_acc = 0, dy_acc = 0,
-						 collides_with_map = true, collides_with_hitboxes = true, collision_response = "pop"}
+						 collides_with_map = true, collides_with_hitboxes = true,
+						 collision_responses = {
+						 	wall = "explode_small",
+						 	void = "vanish",
+						 	enemy = "explode_small"
+						 }}
 	c_drawables[id] =	{sprite = "bullet_23", color = color.rouge,
 						 flash_color = color.white, flash_time = 0,}
+end
+
+function ecs.spawn_slash(kind, start_x, start_y, dx, dy, duration)
+	id = idcounter.get_id("entity")
+	c_identities[id] =	{name = "Slash", birth_frame = game_frame}
+	c_positions[id] =	{x = start_x, y = start_y, half_w = 6, half_h = 6}
+	c_movements[id] =	{kind = "projectile", dx = dx, dy = dy, dx_acc = 0, dy_acc = 0,
+						 collides_with_map = true, collides_with_hitboxes = true,
+						 collision_responses = {
+						 	wall = "vanish",
+						 	void = "vanish",
+						 	enemy = "slice"
+						 }}
+	-- c_drawables[id] =	{sprite = "bullet_23", color = color.white,
+	-- 					 flash_color = color.white, flash_time = 0,}
+	c_timeouts[id] =	game_frame + duration
 end
 
 function ecs.spawn_particle(kind, color, start_x, start_y, dx, dy, duration)
@@ -15,7 +36,11 @@ function ecs.spawn_particle(kind, color, start_x, start_y, dx, dy, duration)
 	c_identities[id] =	{name = "Spark", birth_frame = game_frame}
 	c_positions[id] =	{x = start_x, y = start_y, half_w = 1, half_h = 1}
 	c_movements[id] =	{kind = "projectile", dx = dx, dy = dy, dx_acc = 0, dy_acc = 0,
-						 collision_response = "vanish"}
+						 collides_with_map = true,
+						 collision_responses = {
+						 	wall = "bounce",
+						 	void = "vanish",
+						 }}
 	c_drawables[id] =	{sprite = "bullet_23", color = color,
 						 flash_color = color.white, flash_time = 0,}
 	c_timeouts[id] =	game_frame + duration
@@ -46,22 +71,24 @@ function ecs.spawn_enemy()
 								 touching_left = false, touching_right = false,}
 	c_drawables[id] =	{sprite = "player", color = color.ltblue,
 						 flash_color = color.white, flash_time = 0,}
-	if mymath.one_chance_in(5) then
+	c_mortals[id] = {hp = 30, immunities = {}}
+	if mymath.one_chance_in(10) then
 		c_hitboxes[id].alignment = "friend"
 		c_drawables[id].color = color.yellow
 	end
 end
 
-function ecs.delete_entity(k)
+function ecs.delete_entity(id)
 	-- XXX there must be a better way :shobon:
-	c_identities[k] = nil
-	c_positions[k] = nil
-	c_movements[k] = nil
-	c_controls[k] = nil
-	c_drawables[k] = nil
-	c_weapons[k] = nil
-	c_timeouts[k] = nil
-	c_hitboxes[k] = nil
+	c_identities[id] = nil
+	c_positions[id] = nil
+	c_movements[id] = nil
+	c_controls[id] = nil
+	c_drawables[id] = nil
+	c_weapons[id] = nil
+	c_timeouts[id] = nil
+	c_hitboxes[id] = nil
+	c_mortals[id] = nil
 end
 
 return ecs

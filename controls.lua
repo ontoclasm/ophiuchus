@@ -30,7 +30,7 @@ function controls.player(k,a)
 	a.fire_pressed = controller:pressed('r1')
 	a.fire_down = controller:down('r1')
 
-	a.altfire_pressed = controller:down('r2')
+	a.altfire_pressed = controller:pressed('r2')
 	a.altfire_down = controller:down('r2')
 
 	-- if controller:getActiveDevice() == "joystick" then

@@ -2,8 +2,9 @@ require "requires"
 
 function love.load()
 	gui_frame, game_frame = 0,0
+	hitstop_frames = 0
 
-	slogpixels:load() -- use the largest integer scale that fits on screen
+	slogpixels:load(2) -- use the largest integer scale that fits on screen
 	window = {}
 	window.w, window.h = 320, 180
 	love.graphics.setBackgroundColor(color.rouge)
@@ -42,6 +43,7 @@ function love.load()
 	c_drawables = {}
 	c_weapons = {}
 	c_timeouts = {}
+	c_mortals = {}
 
 	player_id = idcounter.get_id("entity")
 	c_identities[player_id] =	{name = "Player", birth_frame = 0}
@@ -79,7 +81,7 @@ function love.load()
 	-- 		hp = 1000, status = {},
 	-- 		shot_cooldown = 0, cof = 0, cof_factor = 0
 	-- 	})
-	for i = 1, 20 do
+	for i = 1, 100 do
 		ecs.spawn_enemy()
 	end
 end
@@ -105,20 +107,25 @@ function love.update(dt)
 				pause()
 				return
 			end
-			game_frame = game_frame + 1
 
-			-- update all systems
-			for k,v in pairs(c_timeouts) do
-				if game_frame >= v then
-					-- respond to timing out?
-					ecs.delete_entity(k)
+			if hitstop_frames > 0 then
+				hitstop_frames = hitstop_frames - 1
+			else
+				game_frame = game_frame + 1
+
+				-- update all systems
+				for k,v in pairs(c_timeouts) do
+					if game_frame >= v then
+						-- respond to timing out?
+						ecs.delete_entity(k)
+					end
 				end
-			end
 
-			controls.update()
-			movement.update()
-			weapons.update()
-			camera.update()
+				controls.update()
+				weapons.update()
+				movement.update()
+				camera.update()
+			end
 		elseif game_state == "pause" then
 			if controller:pressed('menu') then unpause() end
 			if controller:pressed('view') then love.event.push("quit") end
@@ -158,8 +165,8 @@ function love.draw()
 	-- love.graphics.print(map.grid_at_pos(mouse.x + camera.x)..", "..map.grid_at_pos(mouse.y + camera.y), 2, window.h - 16)
 	love.graphics.print("* Jackdaws of Quartz *", 2, window.h - 16)
 
-	physics.debug_map_collision_sweep(c_positions[player_id])
-	--physics.debug_map_collision({x = mouse.x + camera.x, y = mouse.y + camera.y, half_w = 4, half_h = 4})
+	-- physics.debug_map_collision_sweep(c_positions[player_id])
+	-- physics.debug_map_collision({x = mouse.x + camera.x, y = mouse.y + camera.y, half_w = 4, half_h = 4})
 
 	if game_state == "pause" then
 		love.graphics.setShader()
@@ -216,5 +223,5 @@ function draw_pause_menu()
 	love.graphics.setColor(color.white)
 	love.graphics.printf("Press Q to quit", math.floor(window.w/2 - 100), math.floor(window.h/2 - font:getHeight()/2), 200, "center")
 	love.graphics.setColor(color.white)
-	love.graphics.draw(img.cursor, love.mouse.getX() - 2, love.mouse.getY() - 2)
+	-- love.graphics.draw(img.cursor, love.mouse.getX() - 2, love.mouse.getY() - 2)
 end

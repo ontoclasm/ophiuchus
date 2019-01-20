@@ -192,6 +192,8 @@ function movement.projectile(k, mov)
 
 	if mov.collides_with_hitboxes then
 		for j, hitbox in pairs(c_hitboxes) do
+			-- XXX ask j if we can hit them? they should be immune to projectiles that hit them recently
+			-- or: keep track of what we've hit recently and ignore those
 			if hitbox.alignment == "enemy" then
 				other_pos = c_positions[j]
 				other_pos_coarse.x, other_pos_coarse.y = other_pos.x, other_pos.y
@@ -214,11 +216,13 @@ function movement.projectile(k, mov)
 	else
 		-- sort by impact time
 		table.sort(hit_list, function(hit_1, hit_2) return hit_1.time < hit_2.time end)
-
 		local stop = false
 
 		for i = 1, #hit_list do
 			hit = hit_list[i]
+
+			-- to do: tell the object we hit it.
+			-- tell k that it hit the object, and have it return whether to stop.
 
 			stop = collisions.collide(k, hit)
 
@@ -228,6 +232,11 @@ function movement.projectile(k, mov)
 			end
 		end
 
+		if not stop then
+			-- we passed through everything
+			pos.x = pos.x + idx
+			pos.y = pos.y + idy
+		end
 		-- if m_hit[1] == "block" and mainmap:block_at(m_hit[2], m_hit[3]) == "void" then
 		-- 	-- oob
 		-- 	movement.collision_responses.vanish(k)

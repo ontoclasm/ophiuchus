@@ -341,7 +341,7 @@ function physics.map_collision_aabb_sweep(a, dx, dy, hit_list)
 
 				if hit then
 					if (nx ~= 0 and ny ~= 0) or not mainmap:grid_blocks_dir(i + nx, j + ny, map.orth_normal_to_dir(-nx, -ny)) then
-						hit.object = {kind = "block", gx = i, gy = j}
+						hit.object = {kind = (block_type == "void" and "void" or "wall"), gx = i, gy = j}
 						-- if hit.nx > 0 then
 						-- 	hit.x = math.ceil(hit.x)
 						-- elseif hit.nx < 0 then
@@ -393,7 +393,7 @@ function physics.debug_map_collision_sweep(a)
 
 				if hit and hit.time < first_hit.time then
 					if (nx ~= 0 and ny ~= 0) or not mainmap:grid_blocks_dir(i + nx, j + ny, map.orth_normal_to_dir(-nx, -ny)) then
-						hit.object = {kind = "block", gx = i, gy = j}
+						hit.object = {kind = (block_type == "void" and "void" or "wall"), gx = i, gy = j}
 						-- if hit.nx > 0 then
 						-- 	hit.x = math.ceil(hit.x)
 						-- elseif hit.nx < 0 then
