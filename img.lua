@@ -9,7 +9,7 @@ function img.render()
 	for k,v in pairs(c_drawables) do
 		pos = c_positions[k]
 		if v.flash_time > game_frame then
-			love.graphics.setColor(color.mix(v.color, v.flash_color, 2 * (v.flash_time - game_frame)))
+			love.graphics.setColor(color.mix(v.color, v.flash_color, (v.flash_time - game_frame)/30))
 		else
 			-- -- debug
 			-- if k == player_id and c_movements[k].grounded then

@@ -3,8 +3,15 @@ local physics = {}
 local ax, bx, pad_x, sign_x, ay, by, pad_y, sign_y
 local near_time_x, far_time_x, near_time_y, far_time_y, far_time
 local hit_time, hit_x, hit_y, nx, ny
+local grid_x1, grid_x2, grid_y1, grid_y2
+local block_type
+local box
+local hit
+local mx, my, mt, mnx, mny
+local rx, ry, norm
 
--- test if a and b are intersecting
+-- STATIC: return true if colliding
+
 function physics.collision_aabb_aabb(a, b)
 	return a.x - a.half_w < b.x+b.half_w and
 		   b.x - b.half_w < a.x+a.half_w and
@@ -21,20 +28,53 @@ function physics.collision_aabb_slope(a, b, slope, slope_y_offset, slope_vert_mu
 		a.y * slope_vert_multiplier + (a.half_h - 1E-5) > (slope * (a.x - (a.half_w - 1E-5) * slope_vert_multiplier * mymath.sign(slope) - b.x) + b.y + slope_y_offset) * slope_vert_multiplier
 end
 
---- test if moving a by (vx,vy) will cause it to hit b
--- if so, return x,y (point of impact), 0 <= t <= 1 ("time" of impact), nx,ny (normal of the surface we ran into)
-function physics.collision_aabb_sweep(a, b, vx, vy)
+function physics.map_collision_aabb(a)
+	grid_x1 = map.grid_at_pos(a.x - a.half_w - 1)
+	grid_x2 = map.grid_at_pos(a.x + a.half_w + 1)
+	grid_y1 = map.grid_at_pos(a.y - a.half_h - 1)
+	grid_y2 = map.grid_at_pos(a.y + a.half_h + 1)
+
+	for i = grid_x1, grid_x2 do
+		for j = grid_y1, grid_y2 do
+			if mainmap:grid_has_collision(i, j) then
+				block_type = mainmap:block_at(i, j)
+				box = map.bounding_box(i, j)
+
+				if block_data[block_type].slope then
+					if physics.collision_aabb_slope(
+						a, box,
+						block_data[block_type].slope, block_data[block_type].slope_y_offset, block_data[block_type].slope_vert_multiplier,
+						block_data.get_box_half_multipliers(block_type)) then
+						return true
+					end
+				elseif physics.collision_aabb_aabb(a, box) then
+					return true
+				end
+			end
+		end
+	end
+
+	return false
+end
+
+------------------------
+
+-- SWEEP: sweep a by (dx, dy) and, if this will cause it to hit b,
+-- return a hit table: {x, y, time, nx, ny, dx, dy}
+-- (with normalized dx and dy)
+
+function physics.collision_aabb_sweep(a, b, dx, dy)
 	-- subtract 0.00001 px from the box sizes to avoid (literal) edge cases
 	ax, bx = a.x, b.x
 	pad_x = b.half_w + a.half_w - 1E-5
-	sign_x = mymath.sign(vx)
+	sign_x = mymath.sign(dx)
 
 	ay, by = a.y, b.y
 	pad_y = b.half_h + a.half_h - 1E-5
-	sign_y = mymath.sign(vy)
+	sign_y = mymath.sign(dy)
 
-	if vx ~= 0 then
-		scale_x = 1 / vx
+	if dx ~= 0 then
+		scale_x = 1 / dx
 		near_time_x = (bx - sign_x * (pad_x) - ax) * scale_x
 		far_time_x = (bx + sign_x * (pad_x) - ax) * scale_x
 	else
@@ -45,8 +85,8 @@ function physics.collision_aabb_sweep(a, b, vx, vy)
 		end
 	end
 
-	if vy ~= 0 then
-		scale_y = 1 / vy
+	if dy ~= 0 then
+		scale_y = 1 / dy
 		near_time_y = (by - sign_y * (pad_y) - ay) * scale_y
 		far_time_y = (by + sign_y * (pad_y) - ay) * scale_y
 	else
@@ -82,32 +122,31 @@ function physics.collision_aabb_sweep(a, b, vx, vy)
 	end
 
 	if sign_x >= 0 then
-		hit_x = math.floor(a.x + hit_time * vx + 1E-5)
+		hit_x = math.floor(a.x + hit_time * dx + 1E-5)
 	else
-		hit_x = math.ceil(a.x + hit_time * vx - 1E-5)
+		hit_x = math.ceil(a.x + hit_time * dx - 1E-5)
 	end
 
 	if sign_y >= 0 then
-		hit_y = math.floor(a.y + hit_time * vy + 1E-5)
+		hit_y = math.floor(a.y + hit_time * dy + 1E-5)
 	else
-		hit_y = math.ceil(a.y + hit_time * vy - 1E-5)
+		hit_y = math.ceil(a.y + hit_time * dy - 1E-5)
 	end
 
-	return hit_x, hit_y, hit_time, nx, ny
+	dx, dy = mymath.normalize(dx, dy)
+	return {x = hit_x, y = hit_y, time = hit_time, nx = nx, ny = ny, dx = dx, dy = dy}
 end
 
-local rx, ry, norm
-
-function physics.collision_aabb_sweep_slope(a, b, vx, vy, slope, slope_y_offset, slope_vert_multiplier, bhm)
+function physics.collision_aabb_sweep_slope(a, b, dx, dy, slope, slope_y_offset, slope_vert_multiplier, bhm)
 	ax, bx =  a.x, b.x
-	sign_x = mymath.sign(vx)
-	scale_x = 1 / vx
+	sign_x = mymath.sign(dx)
+	scale_x = 1 / dx
 
 	ay, by =  a.y, b.y
-	sign_y = mymath.sign(vy)
-	scale_y = 1 / vy
+	sign_y = mymath.sign(dy)
+	scale_y = 1 / dy
 
-	if vx ~= 0 then
+	if dx ~= 0 then
 		if sign_x == 1 then
 			near_time_x = (bx - ax - b.half_w * bhm.l - a.half_w + 1E-5) * scale_x
 			far_time_x = (bx - ax + b.half_w * bhm.r + a.half_w - 1E-5) * scale_x
@@ -123,7 +162,7 @@ function physics.collision_aabb_sweep_slope(a, b, vx, vy, slope, slope_y_offset,
 		end
 	end
 
-	if vy ~= 0 then
+	if dy ~= 0 then
 		if sign_y == 1 then
 			near_time_y = (by - ay - b.half_h * bhm.u - a.half_h + 1E-5) * scale_y
 			far_time_y = (by - ay + b.half_h * bhm.d + a.half_h - 1E-5) * scale_y
@@ -150,14 +189,14 @@ function physics.collision_aabb_sweep_slope(a, b, vx, vy, slope, slope_y_offset,
 	rx = ax - (a.half_w - 1E-5) * slope_vert_multiplier * mymath.sign(slope)
 	ry = ay + (a.half_h - 1E-5) * slope_vert_multiplier
 
-	if vx ~= 0 then
-		-- find the x distance traveled; divide by vx to find near_time_q
-		vslope = vy / vx
+	if dx ~= 0 then
+		-- find the x distance traveled; divide by dx to find near_time_q
+		vslope = dy / dx
 
 		-- x coord of the contact point is (1/(slope - vslope))(slope * bx - by - vslope * rx + ry)
 		near_time_q = ((slope * bx - by - slope_y_offset - vslope * rx + ry) / (slope - vslope) - rx) * scale_x
 	else
-		-- x is fixed: find the y distance and divide by vy to find near_time_q
+		-- x is fixed: find the y distance and divide by dy to find near_time_q
 
 		-- y coord of the contact point is (slope * (rx - bx) + by)
 		near_time_q = (slope * (rx - bx) + by + slope_y_offset - ry) * scale_y
@@ -205,15 +244,15 @@ function physics.collision_aabb_sweep_slope(a, b, vx, vy, slope, slope_y_offset,
 		ny = - 1 / norm
 
 		if sign_x >= 0 then
-			hit_x = math.floor(a.x + hit_time * vx + 1E-5)
+			hit_x = math.floor(a.x + hit_time * dx + 1E-5)
 		else
-			hit_x = math.ceil(a.x + hit_time * vx - 1E-5)
+			hit_x = math.ceil(a.x + hit_time * dx - 1E-5)
 		end
 
 		if sign_y >= 0 then
-			hit_y = math.floor(a.y + hit_time * vy + 1E-5)
+			hit_y = math.floor(a.y + hit_time * dy + 1E-5)
 		else
-			hit_y = math.ceil(a.y + hit_time * vy - 1E-5)
+			hit_y = math.ceil(a.y + hit_time * dy - 1E-5)
 		end
 	else
 		if near_time_x > near_time_y then
@@ -225,63 +264,28 @@ function physics.collision_aabb_sweep_slope(a, b, vx, vy, slope, slope_y_offset,
 		end
 
 		if sign_x >= 0 then
-			hit_x = math.floor(a.x + hit_time * vx + 1E-5)
+			hit_x = math.floor(a.x + hit_time * dx + 1E-5)
 		else
-			hit_x = math.ceil(a.x + hit_time * vx - 1E-5)
+			hit_x = math.ceil(a.x + hit_time * dx - 1E-5)
 		end
 
 		if sign_y >= 0 then
-			hit_y = math.floor(a.y + hit_time * vy + 1E-5)
+			hit_y = math.floor(a.y + hit_time * dy + 1E-5)
 		else
-			hit_y = math.ceil(a.y + hit_time * vy - 1E-5)
+			hit_y = math.ceil(a.y + hit_time * dy - 1E-5)
 		end
 	end
 
-	return hit_x, hit_y, hit_time, nx, ny
+	dx, dy = mymath.normalize(dx, dy)
+	return {x = hit_x, y = hit_y, time = hit_time, nx = nx, ny = ny, dx = dx, dy = dy}
 end
 
--------------
-
-local grid_x1, grid_x2, grid_y1, grid_y2
-local block_type
-local box
-local hit
-local mx, my, mt, mnx, mny
-
-function physics.map_collision_aabb(a)
-	grid_x1 = map.grid_at_pos(a.x - a.half_w - 1)
-	grid_x2 = map.grid_at_pos(a.x + a.half_w + 1)
-	grid_y1 = map.grid_at_pos(a.y - a.half_h - 1)
-	grid_y2 = map.grid_at_pos(a.y + a.half_h + 1)
-
-	for i = grid_x1, grid_x2 do
-		for j = grid_y1, grid_y2 do
-			if mainmap:grid_has_collision(i, j) then
-				block_type = mainmap:block_at(i, j)
-				box = map.bounding_box(i, j)
-
-				if block_data[block_type].slope then
-					if physics.collision_aabb_slope(
-						a, box,
-						block_data[block_type].slope, block_data[block_type].slope_y_offset, block_data[block_type].slope_vert_multiplier,
-						block_data.get_box_half_multipliers(block_type)) then
-						return true
-					end
-				elseif physics.collision_aabb_aabb(a, box) then
-					return true
-				end
-			end
-		end
-	end
-
-	return false
-end
-
-function physics.map_collision_aabb_sweep(a, vx, vy)
-	grid_x1 = map.grid_at_pos(math.min(a.x - a.half_w - 1, a.x - a.half_w + vx - 1))
-	grid_x2 = map.grid_at_pos(math.max(a.x + a.half_w + 1, a.x + a.half_w + vx + 1))
-	grid_y1 = map.grid_at_pos(math.min(a.y - a.half_h - 1, a.y - a.half_h + vy - 1))
-	grid_y2 = map.grid_at_pos(math.max(a.y + a.half_h + 1, a.y + a.half_h + vy + 1))
+function physics.map_collision_aabb_sweep_test(a, dx, dy, hit_list)
+	-- return true if we hit anything
+	grid_x1 = map.grid_at_pos(math.min(a.x - a.half_w - 1, a.x - a.half_w + dx - 1))
+	grid_x2 = map.grid_at_pos(math.max(a.x + a.half_w + 1, a.x + a.half_w + dx + 1))
+	grid_y1 = map.grid_at_pos(math.min(a.y - a.half_h - 1, a.y - a.half_h + dy - 1))
+	grid_y2 = map.grid_at_pos(math.max(a.y + a.half_h + 1, a.y + a.half_h + dy + 1))
 
 	mt = 1
 	hit = nil
@@ -292,61 +296,34 @@ function physics.map_collision_aabb_sweep(a, vx, vy)
 				box = map.bounding_box(i, j)
 
 				if block_data[block_type].slope then
-					hx, hy, ht, nx, ny = physics.collision_aabb_sweep_slope(
-						a, box, vx, vy,
+					hit = physics.collision_aabb_sweep_slope(
+						a, box, dx, dy,
 						block_data[block_type].slope, block_data[block_type].slope_y_offset, block_data[block_type].slope_vert_multiplier,
 						block_data.get_box_half_multipliers(block_type))
 				else
-					hx, hy, ht, nx, ny = physics.collision_aabb_sweep(a, box, vx, vy)
+					hit = physics.collision_aabb_sweep(a, box, dx, dy)
 				end
 
-				if ht and ht < mt then
+				if hit then
 					if (nx ~= 0 and ny ~= 0) or not mainmap:grid_blocks_dir(i + nx, j + ny, map.orth_normal_to_dir(-nx, -ny)) then
-						hit = {"block", i, j}
-						mt = ht
-						mx = hit_x
-						my = hit_y
-						mnx = nx
-						mny = ny
-						if nx > 0 then
-							mx = math.ceil(mx)
-						elseif nx < 0 then
-							mx = math.floor(mx)
-						end
-						if ny > 0 then
-							my = math.ceil(my)
-						elseif ny < 0 then
-							my = math.floor(my)
-						end
+						return true
 					end
 				end
 			end
 		end
 	end
-
-	if not hit then
-		mx, my = a.x + vx, a.y + vy
-		mnx, mny = 0, 0
-	end
-
-	return hit, mx, my, mt, mnx, mny
+	return false
 end
 
-local vx, vy
-local ijhx, ijhy, ijht, ijnx, ijny
-local rt, rvx, rvy
+function physics.map_collision_aabb_sweep(a, dx, dy, hit_list)
+	-- populate hit_list with any collisions with the map
+	-- returns the list UNSORTED
+	grid_x1 = map.grid_at_pos(math.min(a.x - a.half_w - 1, a.x - a.half_w + dx - 1))
+	grid_x2 = map.grid_at_pos(math.max(a.x + a.half_w + 1, a.x + a.half_w + dx + 1))
+	grid_y1 = map.grid_at_pos(math.min(a.y - a.half_h - 1, a.y - a.half_h + dy - 1))
+	grid_y2 = map.grid_at_pos(math.max(a.y + a.half_h + 1, a.y + a.half_h + dy + 1))
 
-function physics.map_collision_test(a)
-	vx = mouse.x + camera.x - a.x
-	vy = mouse.y + camera.y - a.y
-
-	grid_x1 = map.grid_at_pos(math.min(a.x - a.half_w, a.x - a.half_w + vx))
-	grid_x2 = map.grid_at_pos(math.max(a.x + a.half_w, a.x + a.half_w + vx))
-	grid_y1 = map.grid_at_pos(math.min(a.y - a.half_h, a.y - a.half_h + vy))
-	grid_y2 = map.grid_at_pos(math.max(a.y + a.half_h, a.y + a.half_h + vy))
-
-	mx, my, mt, mnx, mny = a.x + vx, a.y + vy, 1, 0, 0
-
+	hit = nil
 	for i = grid_x1, grid_x2 do
 		for j = grid_y1, grid_y2 do
 			if mainmap:grid_has_collision(i, j) then
@@ -354,68 +331,122 @@ function physics.map_collision_test(a)
 				box = map.bounding_box(i, j)
 
 				if block_data[block_type].slope then
-					ijhx, ijhy, ijht, ijnx, ijny = physics.collision_aabb_sweep_slope(
-						a, box, vx, vy,
+					hit = physics.collision_aabb_sweep_slope(
+						a, box, dx, dy,
 						block_data[block_type].slope, block_data[block_type].slope_y_offset, block_data[block_type].slope_vert_multiplier,
 						block_data.get_box_half_multipliers(block_type))
 				else
-					ijhx, ijhy, ijht, ijnx, ijny = physics.collision_aabb_sweep(a, box, vx, vy)
+					hit = physics.collision_aabb_sweep(a, box, dx, dy)
 				end
 
-				if ijht and ijht < mt then
-					mt = hit_time
-					mx = ijhx
-					my = ijhy
-					mnx = nx
-					mny = ny
-					if mnx > 0 then
-							mx = math.ceil(mx)
-						elseif nx < 0 then
-							mx = math.floor(mx)
-						end
-						if mny > 0 then
-							my = math.ceil(my)
-						elseif ny < 0 then
-							my = math.floor(my)
-						end
+				if hit then
+					if (nx ~= 0 and ny ~= 0) or not mainmap:grid_blocks_dir(i + nx, j + ny, map.orth_normal_to_dir(-nx, -ny)) then
+						hit.object = {kind = "block", gx = i, gy = j}
+						-- if hit.nx > 0 then
+						-- 	hit.x = math.ceil(hit.x)
+						-- elseif hit.nx < 0 then
+						-- 	hit.x = math.floor(hit.x)
+						-- end
+						-- if hit.ny > 0 then
+						-- 	hit.y = math.ceil(hit.y)
+						-- elseif hit.ny < 0 then
+						-- 	hit.y = math.floor(y)
+						-- end
+						hit_list[#hit_list + 1] = hit
+					end
+				end
+			end
+		end
+	end
+end
+
+local dx, dy
+local ijhx, ijhy, ijht, ijnx, ijny
+local rt, rdx, rdy
+
+function physics.debug_map_collision_sweep(a)
+	dx = mouse.x + camera.x - a.x
+	dy = mouse.y + camera.y - a.y
+
+	grid_x1 = map.grid_at_pos(math.min(a.x - a.half_w, a.x - a.half_w + dx))
+	grid_x2 = map.grid_at_pos(math.max(a.x + a.half_w, a.x + a.half_w + dx))
+	grid_y1 = map.grid_at_pos(math.min(a.y - a.half_h, a.y - a.half_h + dy))
+	grid_y2 = map.grid_at_pos(math.max(a.y + a.half_h, a.y + a.half_h + dy))
+
+	udx, udy = mymath.normalize(dx, dy)
+	first_hit = {x = a.x + dx, y = a.y + dy, time = 1, nx = 0, ny = 0, dx = udx, dy = udy}
+	hit = nil
+	for i = grid_x1, grid_x2 do
+		for j = grid_y1, grid_y2 do
+			if mainmap:grid_has_collision(i, j) then
+				block_type = mainmap:block_at(i, j)
+				box = map.bounding_box(i, j)
+
+				if block_data[block_type].slope then
+					hit = physics.collision_aabb_sweep_slope(
+						a, box, dx, dy,
+						block_data[block_type].slope, block_data[block_type].slope_y_offset, block_data[block_type].slope_vert_multiplier,
+						block_data.get_box_half_multipliers(block_type))
+				else
+					hit = physics.collision_aabb_sweep(a, box, dx, dy)
+				end
+
+				if hit and hit.time < first_hit.time then
+					if (nx ~= 0 and ny ~= 0) or not mainmap:grid_blocks_dir(i + nx, j + ny, map.orth_normal_to_dir(-nx, -ny)) then
+						hit.object = {kind = "block", gx = i, gy = j}
+						-- if hit.nx > 0 then
+						-- 	hit.x = math.ceil(hit.x)
+						-- elseif hit.nx < 0 then
+						-- 	hit.x = math.floor(hit.x)
+						-- end
+						-- if hit.ny > 0 then
+						-- 	hit.y = math.ceil(hit.y)
+						-- elseif hit.ny < 0 then
+						-- 	hit.y = math.floor(y)
+						-- end
+						first_hit = hit
+					end
 				end
 			end
 		end
 	end
 
-	if mt < 1 then
-		rt = 1 - mt
+	-- calculate the residual vector
+	if first_hit.time < 1 then
+		rt = 1 - first_hit.time
 		-- px = ny
 		-- py = -nx
-		-- wx = vx * rem_time
-		-- wy = vy * rem_time
+		-- wx = dx * rem_time
+		-- wy = dy * rem_time
 
-		-- (vx rt, vy rt) dot (ny, -nx)
-		r = vx * rt * mny - vy * rt * mnx
+		-- (dx rt, dy rt) dot (ny, -nx)
+		r = dx * rt * first_hit.ny - dy * rt * first_hit.nx
 
-		rvx = r * mny
-		rvy = r * (-mnx)
+		rdx = r * first_hit.ny
+		rdy = r * (-first_hit.nx)
 	end
 
 	-- draw debug tracer
-	if mt == 1 then
+	if first_hit.time == 1 then
 		love.graphics.setColor(color.blue)
 	else
 		love.graphics.setColor(color.orange)
 	end
-	love.graphics.line(a.x - camera.x, a.y - camera.y, mx - camera.x, my - camera.y)
-	love.graphics.rectangle('line', mx - a.half_w - camera.x + 0.5, my - a.half_h - camera.y + 0.5, a.half_w * 2 - 1, a.half_h * 2 - 1)
+	love.graphics.line(a.x - camera.x, a.y - camera.y, first_hit.x - camera.x, first_hit.y - camera.y)
+	love.graphics.rectangle('line', first_hit.x - a.half_w - camera.x + 0.5, first_hit.y - a.half_h - camera.y + 0.5,
+							a.half_w * 2 - 1, a.half_h * 2 - 1)
 	love.graphics.setColor(color.white)
 	-- love.graphics.rectangle('line', a.x - camera.x, a.y - camera.y, a.w, a.h)
-	if mt < 1 then
-		love.graphics.line(mx - camera.x, my - camera.y, mx - camera.x + rvx, my - camera.y + rvy)
+	if first_hit.time < 1 then
+		love.graphics.line(first_hit.x - camera.x, first_hit.y - camera.y, first_hit.x - camera.x + rdx, first_hit.y - camera.y + rdy)
 		love.graphics.setColor(color.rouge)
-		love.graphics.line(mx - camera.x, my - camera.y, mx - camera.x + mnx * 8, my - camera.y + mny * 8)
+		love.graphics.line(first_hit.x - camera.x, first_hit.y - camera.y,
+						   first_hit.x - camera.x + first_hit.nx * 8, first_hit.y - camera.y + first_hit.ny * 8)
 		love.graphics.setColor(color.white)
 	end
 end
 
-function physics.map_collision_test2(a)
+function physics.debug_map_collision(a)
 	if physics.map_collision_aabb(a) then
 		love.graphics.setColor(color.orange)
 	else

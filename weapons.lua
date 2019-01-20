@@ -37,8 +37,8 @@ weapons.kinds["assault"] = {
 
 	fire_down = function(weapon, start_x, start_y, aim_x, aim_y)
 		if weapon.ready_time < game_frame then
-			dx, dy = mymath.normalize(aim_x - start_x, aim_y - start_y)
-			ecs.spawn_shot("pellet", start_x, start_y, dx, dy, 20)
+			local angle = mymath.weighted_spread(math.atan2(aim_y - start_y, aim_x - start_x), 0.1)
+			ecs.spawn_shot("pellet", start_x, start_y, 15 * math.cos(angle), 15 * math.sin(angle))
 			weapon.ready_time = game_frame + 8
 		end
 	end,

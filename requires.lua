@@ -1,8 +1,9 @@
 baton = require "lib/baton"
-lovepixels = require "lib/lovepixels"
+slogpixels = require "lib/slogpixels"
 
 camera = require "camera"
 color = require "color"
+collisions = require "collisions"
 controls = require "controls"
 ecs = require "ecs"
 idcounter = require "idcounter"

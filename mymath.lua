@@ -3,7 +3,7 @@ local mymath = {}
 local dx, dy, v
 
 function mymath.average_angles(...)
-	dx, dy = 0,0
+	local x, y = 0,0
 	for i=1,select('#',...) do local a= select(i,...) x, y = x+math.cos(a), y+math.sin(a) end
 	return math.atan2(y, x)
 end
@@ -75,5 +75,7 @@ end
 function mymath.one_chance_in(n) return love.math.random(1,n) == 1 end
 
 function mymath.random_spread(angle, spread) return angle + (spread * (2 * love.math.random() - 1)) end
+
+function mymath.weighted_spread(angle, spread) return angle + (spread * (love.math.random() - love.math.random())) end
 
 return mymath

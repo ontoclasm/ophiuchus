@@ -6,16 +6,16 @@ local aim_distance = 32
 
 function controls.update()
 	for k,v in pairs(c_controls) do
-		controls[v.ai](v)
+		controls[v.ai](k,v)
 	end
 end
 
-function controls.player(a)
-	a.x, a.y = 0, 0
-	if controller:down('dp_left') then a.x = a.x - 1 end
-	if controller:down('dp_right') then a.x = a.x + 1 end
-	if controller:down('dp_up') then a.y = a.y - 1 end
-	if controller:down('dp_down') then a.y = a.y + 1 end
+function controls.player(k,a)
+	a.move_x, a.move_y = 0, 0
+	if controller:down('dp_left') then a.move_x = a.move_x - 1 end
+	if controller:down('dp_right') then a.move_x = a.move_x + 1 end
+	if controller:down('dp_up') then a.move_y = a.move_y - 1 end
+	if controller:down('dp_down') then a.move_y = a.move_y + 1 end
 
 	-- a.jump = controller:pressed('l1')
 	-- a.float = controller:down('l1')
@@ -61,6 +61,31 @@ function controls.player(a)
 	-- else
 	-- 	a.facing = 'l'
 	-- end
+end
+
+function controls.mook(k,a)
+	if a.wake_frame <= game_frame then
+		if (not a.ai_state) or mymath.one_chance_in(10) then
+			-- rethink
+			if mymath.one_chance_in(2) then
+				a.ai_state = "random"
+			else
+				a.ai_state = "hunt"
+			end
+		end
+
+		if a.ai_state == "random" then
+			a.move_x = love.math.random(3) - 2
+			a.move_y = love.math.random(3) - 2
+		elseif a.ai_state == "hunt" then
+			local pos, player_pos = c_positions[k], c_positions[player_id]
+			local dx, dy = mymath.normalize(player_pos.x - pos.x, player_pos.y - pos.y)
+			a.move_x = mymath.abs_floor(dx * 1.99)
+			a.move_y = mymath.abs_floor(dy * 1.99)
+		end
+
+		a.wake_frame = game_frame + 10 + love.math.random(40)
+	end
 end
 
 return controls

@@ -3,7 +3,7 @@ require "requires"
 function love.load()
 	gui_frame, game_frame = 0,0
 
-	lovepixels:load() -- use the largest integer scale that fits on screen
+	slogpixels:load() -- use the largest integer scale that fits on screen
 	window = {}
 	window.w, window.h = 320, 180
 	love.graphics.setBackgroundColor(color.rouge)
@@ -36,6 +36,7 @@ function love.load()
 	-- component holders
 	c_identities = {}
 	c_positions = {}
+	c_hitboxes = {}
 	c_movements = {}
 	c_controls = {}
 	c_drawables = {}
@@ -46,7 +47,7 @@ function love.load()
 	c_identities[player_id] =	{name = "Player", birth_frame = 0}
 	c_positions[player_id] =	{x = 50, y = 50, half_w = 3, half_h = 3}
 	c_movements[player_id] =	{kind = "walker", dx = 0, dy = 0, dx_acc = 0, dy_acc = 0,
-								 speed = 1, accel = 0.1, air_accel = 0.05, grounded = false, jumping = false,
+								 speed = 1.5, accel = 0.1, air_accel = 0.05, grounded = false, jumping = false,
 								 touching_left = false, touching_right = false,}
 	c_controls[player_id] =		{
 		ai = "player",
@@ -54,6 +55,7 @@ function love.load()
 		aim_x = 0, aim_y = 0,
 		fire_pressed = false, fire_down = false,
 		altfire_pressed = false, altfire_down = false,
+		wake_frame = 0,
 	}
 	c_drawables[player_id] =	{sprite = "player", color = color.rouge,
 								 flash_color = color.white, flash_time = 0,}
@@ -77,14 +79,17 @@ function love.load()
 	-- 		hp = 1000, status = {},
 	-- 		shot_cooldown = 0, cof = 0, cof_factor = 0
 	-- 	})
+	for i = 1, 20 do
+		ecs.spawn_enemy()
+	end
 end
 
 local time_acc = 0
 local TIMESTEP = 1/60
 function love.update(dt)
 	-- update lovepixel stuff
-	lovepixels:pixelMouse()
-	lovepixels:calcOffset()
+	slogpixels:pixelMouse()
+	slogpixels:calcOffset()
 
 	time_acc = time_acc + dt
 
@@ -93,7 +98,7 @@ function love.update(dt)
 
 		-- handle input
 		controller:update()
-		mouse = {x = lovepixels.mousex, y = lovepixels.mousey}
+		mouse = {x = slogpixels.mousex, y = slogpixels.mousey}
 
 		if game_state == "play" then
 			if controller:pressed('menu') then
@@ -123,21 +128,21 @@ function love.update(dt)
 end
 
 function love.draw()
-	lovepixels:drawGameArea()
+	slogpixels:drawGameArea()
 	if game_state == "pause" then
 		love.graphics.setShader(shader_desaturate)
 	end
 
 	-- love.graphics.setCanvas(game_canvas)
-	-- love.graphics.clear()
+	love.graphics.clear(0.1, 0.1, 0.3)
 
 	img.render()
 
 	-- gui
 
-	if game_state == "play" then
-		love.graphics.draw(img.cursor, mouse.x - 2, mouse.y - 2)
-	end
+	-- if game_state == "play" then
+	-- 	love.graphics.draw(img.cursor, mouse.x - 2, mouse.y - 2)
+	-- end
 
 	-- love.graphics.setColor(player.color)
 	-- love.graphics.print(player.hp, 20, 20)
@@ -153,8 +158,8 @@ function love.draw()
 	-- love.graphics.print(map.grid_at_pos(mouse.x + camera.x)..", "..map.grid_at_pos(mouse.y + camera.y), 2, window.h - 16)
 	love.graphics.print("* Jackdaws of Quartz *", 2, window.h - 16)
 
-	physics.map_collision_test(c_positions[player_id])
-	-- physics.map_collision_test2({x = mouse.x + camera.x, y = mouse.y + camera.y, half_w = 4, half_h = 4})
+	physics.debug_map_collision_sweep(c_positions[player_id])
+	--physics.debug_map_collision({x = mouse.x + camera.x, y = mouse.y + camera.y, half_w = 4, half_h = 4})
 
 	if game_state == "pause" then
 		love.graphics.setShader()
@@ -163,7 +168,7 @@ function love.draw()
 
 	-- love.graphics.setCanvas()
 	-- love.graphics.draw(game_canvas)
-	lovepixels:endDrawGameArea()
+	slogpixels:endDrawGameArea()
 end
 
 function love.keypressed(key, unicode)
