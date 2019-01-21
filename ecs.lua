@@ -1,16 +1,53 @@
 local ecs = {}
 
+function ecs.spawn_player(id)
+	c_identities[id] =	{name = "Player", birth_frame = 0}
+	c_positions[id] =	{x = 50, y = 50, half_w = 3, half_h = 3}
+	c_movements[id] =
+	{
+		kind = "walker", dx = 0, dy = 0, dx_acc = 0, dy_acc = 0,
+		walker_data =
+		{
+			top_speed = 1.5, accel = 0.1,
+		},
+	}
+	c_controls[id] =
+	{
+		ai = "player",
+		x = 0, y = 0,
+		aim_x = 0, aim_y = 0,
+		fire_pressed = false, fire_down = false,
+		altfire_pressed = false, altfire_down = false,
+		wake_frame = 0,
+	}
+	c_drawables[id] =	{sprite = "player", color = color.rouge,
+								 flash_color = color.white, flash_time = 0,}
+	c_weapons[id] = 		{[1] = weapons.create("assault")}
+end
+
 function ecs.spawn_shot(kind, start_x, start_y, dx, dy)
 	id = idcounter.get_id("entity")
 	c_identities[id] =	{name = "Pellet", birth_frame = game_frame}
 	c_positions[id] =	{x = start_x, y = start_y, half_w = 1, half_h = 1}
-	c_movements[id] =	{kind = "projectile", dx = dx, dy = dy, dx_acc = 0, dy_acc = 0,
-						 collides_with_map = true, collides_with_hitboxes = true,
-						 collision_responses = {
-						 	wall = "explode_small",
-						 	void = "vanish",
-						 	enemy = "explode_small"
-						 }}
+	c_movements[id] =
+	{
+		kind = "projectile", dx = dx, dy = dy, dx_acc = 0, dy_acc = 0,
+		projectile_data =
+		{
+			collides_with_map = true, collides_with_hitboxes = true,
+			collision_responses =
+			{
+				wall = "explode_small",
+				void = "vanish",
+				enemy = "explode_small"
+			},
+			attack =
+			{
+				damage = 5,
+				push = 1.5
+			},
+		},
+	}
 	c_drawables[id] =	{sprite = "bullet_23", color = color.rouge,
 						 flash_color = color.white, flash_time = 0,}
 end
@@ -19,13 +56,25 @@ function ecs.spawn_slash(kind, start_x, start_y, dx, dy, duration)
 	id = idcounter.get_id("entity")
 	c_identities[id] =	{name = "Slash", birth_frame = game_frame}
 	c_positions[id] =	{x = start_x, y = start_y, half_w = 6, half_h = 6}
-	c_movements[id] =	{kind = "projectile", dx = dx, dy = dy, dx_acc = 0, dy_acc = 0,
-						 collides_with_map = true, collides_with_hitboxes = true,
-						 collision_responses = {
-						 	wall = "vanish",
-						 	void = "vanish",
-						 	enemy = "slice"
-						 }}
+	c_movements[id] =
+	{
+		kind = "projectile", dx = dx, dy = dy, dx_acc = 0, dy_acc = 0,
+		projectile_data =
+		{
+			collides_with_map = true, collides_with_hitboxes = true,
+			collision_responses =
+			{
+				wall = "vanish",
+				void = "vanish",
+				enemy = "slice"
+			},
+			attack =
+			{
+				damage = 1,
+				kb = 8
+			},
+		},
+	}
 	-- c_drawables[id] =	{sprite = "bullet_23", color = color.white,
 	-- 					 flash_color = color.white, flash_time = 0,}
 	c_timeouts[id] =	game_frame + duration
@@ -35,12 +84,11 @@ function ecs.spawn_particle(kind, color, start_x, start_y, dx, dy, duration)
 	id = idcounter.get_id("entity")
 	c_identities[id] =	{name = "Spark", birth_frame = game_frame}
 	c_positions[id] =	{x = start_x, y = start_y, half_w = 1, half_h = 1}
-	c_movements[id] =	{kind = "projectile", dx = dx, dy = dy, dx_acc = 0, dy_acc = 0,
-						 collides_with_map = true,
-						 collision_responses = {
-						 	wall = "bounce",
-						 	void = "vanish",
-						 }}
+	c_movements[id] =
+	{
+		kind = "projectile", dx = dx, dy = dy, dx_acc = 0, dy_acc = 0,
+		projectile_data = {},
+	}
 	c_drawables[id] =	{sprite = "bullet_23", color = color,
 						 flash_color = color.white, flash_time = 0,}
 	c_timeouts[id] =	game_frame + duration
@@ -66,9 +114,33 @@ function ecs.spawn_enemy()
 		altfire_pressed = false, altfire_down = false,
 		wake_frame = 0,
 	}
-	c_movements[id] =	{kind = "walker", dx = 0, dy = 0, dx_acc = 0, dy_acc = 0,
-								 speed = 1, accel = 0.1, air_accel = 0.05, grounded = false, jumping = false,
-								 touching_left = false, touching_right = false,}
+	c_movements[id] =
+	{
+		kind = "walker", dx = 0, dy = 0, dx_acc = 0, dy_acc = 0,
+		walker_data =
+		{
+			top_speed = 1, accel = 0.1,
+		},
+		knockback_data =
+		{
+			decel = 0.1,
+		},
+		projectile_data =
+		{
+			collides_with_map = true, collides_with_hitboxes = true,
+			collision_responses =
+			{
+				wall = "bounce",
+				void = "bounce",
+				enemy = "slow"
+			},
+			attack =
+			{
+				damage = 0,
+				kb_factor = 0.7,
+			},
+		},
+	}
 	c_drawables[id] =	{sprite = "player", color = color.ltblue,
 						 flash_color = color.white, flash_time = 0,}
 	c_mortals[id] = {hp = 30, immunities = {}}

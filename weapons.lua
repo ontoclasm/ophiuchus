@@ -46,7 +46,7 @@ weapons.kinds["assault"] = {
 	altfire_pressed = function(weapon, start_x, start_y, aim_x, aim_y)
 		if weapon.ready_time < game_frame then
 			local angle = math.atan2(aim_y - start_y, aim_x - start_x)
-			ecs.spawn_slash("slash", start_x + 3 * math.cos(angle), start_y + 3 * math.sin(angle),
+			ecs.spawn_slash("slash", start_x, start_y,
 							20 * math.cos(angle), 20 * math.sin(angle), 1)
 			weapon.ready_time = game_frame + 20
 		end

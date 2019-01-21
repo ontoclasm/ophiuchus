@@ -1,6 +1,17 @@
-img = {tile = {}}
+img = {tile = {}, new_blood = {}}
 
 function img.render()
+	-- add blood spatters
+	love.graphics.setCanvas(blood_canvas)
+	love.graphics.setColor(color.blood)
+	for k,v in ipairs(img.new_blood) do
+		love.graphics.circle("fill", v.x + img.tile_size, v.y + img.tile_size, v.r)
+	end
+	img.new_blood = {}
+	love.graphics.setColor(color.white)
+	love.graphics.setCanvas(slogpixels.mainCanvas)
+	love.graphics.draw(blood_canvas, -camera.x - img.tile_size, -camera.y - img.tile_size)
+
 	img.update_tileset_batch()
 	love.graphics.draw(img.tileset_batch, -(camera.x % 8), -(camera.y % 8))
 

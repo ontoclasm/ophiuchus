@@ -9,24 +9,25 @@ end
 
 local m_hit, pos, controls, idx, idy
 function movement.walker(k, mov)
+	wd = mov.walker_data
 	pos = c_positions[k]
 
 	-- apply controls if they exist
 	controls = c_controls[k]
-	dx_goal = controls and controls.move_x * mov.speed or 0
-	dy_goal = controls and controls.move_y * mov.speed or 0
+	dx_goal = controls and controls.move_x * wd.top_speed or 0
+	dy_goal = controls and controls.move_y * wd.top_speed or 0
 
 	-- check adjacent walls
-	mov.touching_up = movement.touching_up(pos)
-	mov.touching_down = movement.touching_down(pos)
-	mov.touching_left = movement.touching_left(pos)
-	mov.touching_right = movement.touching_right(pos)
+	-- mov.touching_up = movement.touching_up(pos)
+	-- mov.touching_down = movement.touching_down(pos)
+	-- mov.touching_left = movement.touching_left(pos)
+	-- mov.touching_right = movement.touching_right(pos)
 
 	-- xxx use abs_subtract?
 	if mov.dx >= dx_goal then
-		mov.dx = math.max(dx_goal, mov.dx - mov.accel)
+		mov.dx = math.max(dx_goal, mov.dx - wd.accel)
 	else
-		mov.dx = math.min(dx_goal, mov.dx + mov.accel)
+		mov.dx = math.min(dx_goal, mov.dx + wd.accel)
 	end
 
 	-- if mov.dx > 0 and mov.touching_right then
@@ -36,9 +37,9 @@ function movement.walker(k, mov)
 	-- end
 
 	if mov.dy >= dy_goal then
-		mov.dy = math.max(dy_goal, mov.dy - mov.accel)
+		mov.dy = math.max(dy_goal, mov.dy - wd.accel)
 	else
-		mov.dy = math.min(dy_goal, mov.dy + mov.accel)
+		mov.dy = math.min(dy_goal, mov.dy + wd.accel)
 	end
 
 	-- if mov.dy > 0 and mov.touching_down then
@@ -173,6 +174,7 @@ COARSE_GRID_SIZE = 64
 local other_pos_coarse = {half_h = COARSE_GRID_SIZE, half_w = COARSE_GRID_SIZE}
 local hit_list = {}
 function movement.projectile(k, mov)
+	pd = mov.projectile_data
 	pos = c_positions[k]
 
 	-- calculate how far to move this frame
@@ -185,12 +187,105 @@ function movement.projectile(k, mov)
 
 	hit_list = {}
 
-	if mov.collides_with_map then
+	if pd.collides_with_map then
 		-- get map hits
 		physics.map_collision_aabb_sweep(pos, idx, idy, hit_list)
 	end
 
-	if mov.collides_with_hitboxes then
+	if pd.collides_with_hitboxes then
+		for j, hitbox in pairs(c_hitboxes) do
+			-- XXX ask j if we can hit them? they should be immune to projectiles that hit them recently
+			-- or: keep track of what we've hit recently and ignore those
+			if hitbox.alignment == "enemy" then
+				other_pos = c_positions[j]
+				other_pos_coarse.x, other_pos_coarse.y = other_pos.x, other_pos.y
+				-- first check if we're anywhere near it, then actually do the sweep. XXX useful or not?
+				if physics.collision_aabb_aabb(pos, other_pos_coarse) then
+					hit = physics.collision_aabb_sweep(pos, other_pos, idx, idy)
+					if hit then
+						hit.object = {kind = "hitbox", id = j}
+						hit_list[#hit_list + 1] = hit
+					end
+				end
+			end
+		end
+	end
+
+	if #hit_list == 0 then
+		-- didn't hit anything; just fly free, man
+		pos.x = pos.x + idx
+		pos.y = pos.y + idy
+	else
+		-- sort by impact time
+		table.sort(hit_list, function(hit_1, hit_2) return hit_1.time < hit_2.time end)
+		local stop = false
+
+		for i = 1, #hit_list do
+			hit = hit_list[i]
+
+			-- to do: tell the object we hit it.
+			-- tell k that it hit the object, and have it return whether to stop.
+
+			stop = collisions.collide(k, hit)
+
+			if stop then
+				-- we hit something solid, so ignore later collisions
+				break
+			end
+		end
+
+		if not stop then
+			-- we passed through everything
+			pos.x = pos.x + idx
+			pos.y = pos.y + idy
+		end
+		-- if m_hit[1] == "block" and mainmap:block_at(m_hit[2], m_hit[3]) == "void" then
+		-- 	-- oob
+		-- 	movement.collision_responses.vanish(k)
+		-- elseif mov.collision_response then
+		-- 	-- react to the collision
+		-- 	idx, idy = mymath.normalize(idx, idy)
+		-- 	movement.collision_responses[mov.collision_response](k, mov, m_hit, m_hit_x, m_hit_y, idx, idy, m_nx, m_ny)
+		-- end
+	end
+end
+
+function movement.knockback(k, mov)
+	-- slow down
+	local new_len = math.max(0, mymath.vector_length(mov.dx, mov.dy) - mov.knockback_data.decel)
+
+	if new_len == 0 then
+		if not mov.kb_end_frame then
+			mov.kb_end_frame = game_frame + 20
+		elseif mov.kb_end_frame <= game_frame then
+			-- done being knocked
+			mov.kind = "walker"
+			c_drawables[k].color = color.ltblue
+		end
+	else
+		mov.kb_end_frame = nil
+	end
+
+	pos = c_positions[k]
+	pd = mov.projectile_data
+	mov.dx, mov.dy = mymath.set_vector_length(mov.dx, mov.dy, new_len)
+
+	-- calculate how far to move this frame
+	-- cut off the fractional part; we'll re-add it next frame
+	mov.dx_acc = mov.dx_acc + mov.dx
+	mov.dy_acc = mov.dy_acc + mov.dy
+	idx, idy = mymath.abs_floor(mov.dx_acc), mymath.abs_floor(mov.dy_acc)
+	mov.dx_acc = mov.dx_acc - idx
+	mov.dy_acc = mov.dy_acc - idy
+
+	hit_list = {}
+
+	if pd.collides_with_map then
+		-- get map hits
+		physics.map_collision_aabb_sweep(pos, idx, idy, hit_list)
+	end
+
+	if pd.collides_with_hitboxes then
 		for j, hitbox in pairs(c_hitboxes) do
 			-- XXX ask j if we can hit them? they should be immune to projectiles that hit them recently
 			-- or: keep track of what we've hit recently and ignore those

@@ -31,6 +31,8 @@ function love.load()
 	img.setup()
 	game_canvas = love.graphics.newCanvas()
 	game_canvas:setFilter("linear", "nearest")
+	blood_canvas = love.graphics.newCanvas((mainmap.width + 4) * img.tile_size, (mainmap.height + 4) * img.tile_size)
+	blood_canvas:setFilter("linear", "nearest")
 
 	gravity = 5
 
@@ -46,23 +48,7 @@ function love.load()
 	c_mortals = {}
 
 	player_id = idcounter.get_id("entity")
-	c_identities[player_id] =	{name = "Player", birth_frame = 0}
-	c_positions[player_id] =	{x = 50, y = 50, half_w = 3, half_h = 3}
-	c_movements[player_id] =	{kind = "walker", dx = 0, dy = 0, dx_acc = 0, dy_acc = 0,
-								 speed = 1.5, accel = 0.1, air_accel = 0.05, grounded = false, jumping = false,
-								 touching_left = false, touching_right = false,}
-	c_controls[player_id] =		{
-		ai = "player",
-		x = 0, y = 0,
-		aim_x = 0, aim_y = 0,
-		fire_pressed = false, fire_down = false,
-		altfire_pressed = false, altfire_down = false,
-		wake_frame = 0,
-	}
-	c_drawables[player_id] =	{sprite = "player", color = color.rouge,
-								 flash_color = color.white, flash_time = 0,}
-	c_weapons[player_id] = {[1] = weapons.create("assault")}
-
+	ecs.spawn_player(player_id)
 
 	-- player = actor:new(
 	-- 	{
@@ -123,6 +109,7 @@ function love.update(dt)
 
 				controls.update()
 				weapons.update()
+				mortals.update()
 				movement.update()
 				camera.update()
 			end
@@ -162,8 +149,8 @@ function love.draw()
 	-- love.graphics.print("pressed: "..(c_controls[player_id].fire_pressed and "t" or "f") ..", down: "..(c_controls[player_id].fire_down and "t" or "f"), 2, window.h - 48)
 	local dc = love.graphics.getStats()
 	love.graphics.print("draws: "..dc.drawcalls, 2, window.h - 32)
-	-- love.graphics.print(map.grid_at_pos(mouse.x + camera.x)..", "..map.grid_at_pos(mouse.y + camera.y), 2, window.h - 16)
-	love.graphics.print("* Jackdaws of Quartz *", 2, window.h - 16)
+	love.graphics.print(map.grid_at_pos(mouse.x + camera.x)..", "..map.grid_at_pos(mouse.y + camera.y), 2, window.h - 16)
+	-- love.graphics.print("* Jackdaws of Quartz *", 2, window.h - 16)
 
 	-- physics.debug_map_collision_sweep(c_positions[player_id])
 	-- physics.debug_map_collision({x = mouse.x + camera.x, y = mouse.y + camera.y, half_w = 4, half_h = 4})

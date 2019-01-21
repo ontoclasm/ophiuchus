@@ -61,7 +61,6 @@ end
 
 -- SWEEP: sweep a by (dx, dy) and, if this will cause it to hit b,
 -- return a hit table: {x, y, time, nx, ny, dx, dy}
--- (with normalized dx and dy)
 
 function physics.collision_aabb_sweep(a, b, dx, dy)
 	-- subtract 0.00001 px from the box sizes to avoid (literal) edge cases
@@ -133,7 +132,6 @@ function physics.collision_aabb_sweep(a, b, dx, dy)
 		hit_y = math.ceil(a.y + hit_time * dy - 1E-5)
 	end
 
-	dx, dy = mymath.normalize(dx, dy)
 	return {x = hit_x, y = hit_y, time = hit_time, nx = nx, ny = ny, dx = dx, dy = dy}
 end
 
@@ -373,8 +371,7 @@ function physics.debug_map_collision_sweep(a)
 	grid_y1 = map.grid_at_pos(math.min(a.y - a.half_h, a.y - a.half_h + dy))
 	grid_y2 = map.grid_at_pos(math.max(a.y + a.half_h, a.y + a.half_h + dy))
 
-	udx, udy = mymath.normalize(dx, dy)
-	first_hit = {x = a.x + dx, y = a.y + dy, time = 1, nx = 0, ny = 0, dx = udx, dy = udy}
+	first_hit = {x = a.x + dx, y = a.y + dy, time = 1, nx = 0, ny = 0, dx = dx, dy = dy}
 	hit = nil
 	for i = grid_x1, grid_x2 do
 		for j = grid_y1, grid_y2 do
