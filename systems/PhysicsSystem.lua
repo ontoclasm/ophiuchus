@@ -88,8 +88,8 @@ function PhysicsSystem:process(e, dt)
 			for _, hit in ipairs(hit_list) do
 				-- tell e it ran into something; tell other_e it got run into.
 				stop = e.collides.collide_with(hit)
-				if hit.kind == "entity" then
-					hit.entity.collides.get_collided_with(e, hit)
+				if hit.object.kind == "entity" then
+					hit.object.entity.collides.get_collided_with(e, hit)
 				end
 
 				if stop then

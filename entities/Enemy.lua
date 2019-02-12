@@ -46,12 +46,23 @@ function Enemy:init(x, y)
 			return other_e.team ~= 2
 		end,
 		collide_with = function(hit)
+			if hit.object.kind == "entity" then
+				if self.drawable then
+					self.drawable.flash_time = game_frame + 20
+				end
+				local angle = math.atan2(self.pos.y - hit.object.entity.pos.y, self.pos.x - hit.object.entity.pos.x)
+				self.vel.dx = self.vel.dx + 2 * math.cos(angle)
+				self.vel.dy = self.vel.dy + 2 * math.sin(angle)
+			end
 			return true
 		end,
 		get_collided_with = function(e, hit)
 			if self.drawable then
 				self.drawable.flash_time = game_frame + 20
 			end
+			local angle = math.atan2(self.pos.y - e.pos.y, self.pos.x - e.pos.x)
+			self.vel.dx = self.vel.dx + 2 * math.cos(angle)
+			self.vel.dy = self.vel.dy + 2 * math.sin(angle)
 		end,
 	}
 

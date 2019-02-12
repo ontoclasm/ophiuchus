@@ -66,13 +66,24 @@ function love.load()
 				return other_e.team ~= 1
 			end,
 			collide_with = function(hit)
-				return true
-			end,
-			get_collided_with = function(e, hit)
-				if self.drawable then
-					self.drawable.flash_time = game_frame + 20
+			if hit.object.kind == "entity" then
+				if player.drawable then
+					player.drawable.flash_time = game_frame + 20
 				end
-			end,
+				local angle = math.atan2(player.pos.y - hit.object.entity.pos.y, player.pos.x - hit.object.entity.pos.x)
+				player.vel.dx = player.vel.dx + 2 * math.cos(angle)
+				player.vel.dy = player.vel.dy + 2 * math.sin(angle)
+			end
+			return true
+		end,
+		get_collided_with = function(e, hit)
+			if player.drawable then
+				player.drawable.flash_time = game_frame + 20
+			end
+			local angle = math.atan2(player.pos.y - e.pos.y, player.pos.x - e.pos.x)
+			player.vel.dx = player.vel.dx + 2 * math.cos(angle)
+			player.vel.dy = player.vel.dy + 2 * math.sin(angle)
+		end,
 		},
 		drawable = {
 			sprite = "player", color = color.rouge,
