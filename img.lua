@@ -1,4 +1,7 @@
-img = {tile = {}, new_blood = {}}
+local img = {tile = {}, new_blood = {}, DrawingSystem = tiny.system(class "DrawingSystem")}
+
+img.DrawingSystem.filter = tiny.requireAll("pos", "drawable")
+img.DrawingSystem.active = false
 
 function img.render()
 	-- add blood spatters
@@ -16,22 +19,21 @@ function img.render()
 	love.graphics.draw(img.tileset_batch, -(camera.x % 8), -(camera.y % 8))
 
 	-- draw all drawables
-	local pos
-	for k,v in pairs(c_drawables) do
-		pos = c_positions[k]
-		if v.flash_time > game_frame then
-			love.graphics.setColor(color.mix(v.color, v.flash_color, (v.flash_time - game_frame)/30))
+	for _, e in pairs(img.DrawingSystem.entities) do
+		if e.drawable.flash_time > game_frame then
+			love.graphics.setColor(color.mix(e.drawable.color, e.drawable.flash_color, (e.drawable.flash_time - game_frame)/30))
 		else
 			-- -- debug
 			-- if k == player_id and c_movements[k].grounded then
 			-- 	love.graphics.setColor(color.orange)
 			-- else
-				love.graphics.setColor(v.color)
+				love.graphics.setColor(e.drawable.color)
 			-- end
 		end
-		love.graphics.draw(img.tileset, img.tile[v.sprite][1],
-						   camera.view_x(pos) - (img.tile_size / 2), camera.view_y(pos) - (img.tile_size / 2))
+		love.graphics.draw(img.tileset, img.tile[e.drawable.sprite][1],
+						   camera.view_x(e.pos) - (img.tile_size / 2), camera.view_y(e.pos) - (img.tile_size / 2))
 	end
+
 	love.graphics.setColor(color.white)
 end
 

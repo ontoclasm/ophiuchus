@@ -1,7 +1,7 @@
 local camera = { x=0, y=0, rx=0, ry=0, tx=0, ty=0 }
 
 function camera.update()
-	target_pos = c_positions[player_id]
+	target_pos = player.pos
 
 	-- lerp the camera
 	if controller:getActiveDevice() == "joystick" then

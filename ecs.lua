@@ -1,30 +1,5 @@
 local ecs = {}
 
-function ecs.spawn_player(id)
-	c_identities[id] =	{name = "Player", birth_frame = 0}
-	c_positions[id] =	{x = 50, y = 50, half_w = 3, half_h = 3}
-	c_movements[id] =
-	{
-		kind = "walker", dx = 0, dy = 0, dx_acc = 0, dy_acc = 0,
-		walker_data =
-		{
-			top_speed = 1.5, accel = 0.1,
-		},
-	}
-	c_controls[id] =
-	{
-		ai = "player",
-		x = 0, y = 0,
-		aim_x = 0, aim_y = 0,
-		fire_pressed = false, fire_down = false,
-		altfire_pressed = false, altfire_down = false,
-		wake_frame = 0,
-	}
-	c_drawables[id] =	{sprite = "player", color = color.rouge,
-								 flash_color = color.white, flash_time = 0,}
-	c_weapons[id] = 		{[1] = weapons.create("assault")}
-end
-
 function ecs.spawn_shot(kind, start_x, start_y, dx, dy)
 	id = idcounter.get_id("entity")
 	c_identities[id] =	{name = "Pellet", birth_frame = game_frame}

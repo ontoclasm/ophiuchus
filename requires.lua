@@ -1,22 +1,22 @@
 baton = require "lib/baton"
 slogpixels = require "lib/slogpixels"
+tiny = require "lib/tiny"
+class = require "lib/30log"
 
 camera = require "camera"
+collision = require "collision"
 color = require "color"
-collisions = require "collisions"
-controls = require "controls"
 ecs = require "ecs"
 idcounter = require "idcounter"
 img = require "img"
 input = require "input"
 map = require "map"
-mortals = require "mortals"
-movement = require "movement"
 mymath = require "mymath"
-physics = require "physics"
 weapons = require "weapons"
 
 block_data = require "block_data"
+
+Enemy = require "entities/Enemy"
 
 -- constants
 PI = math.pi
