@@ -16,8 +16,9 @@ end
 
 function PhysicsSystem:process(e, dt)
 	if e.controls and e.walker then
-		dx_goal = e.controls and e.controls.move_x * e.walker.top_speed or 0
-		dy_goal = e.controls and e.controls.move_y * e.walker.top_speed or 0
+		dx_goal = e.controls.move_x * e.walker.top_speed
+		dy_goal = e.controls.move_y * e.walker.top_speed
+
 
 		-- check adjacent walls
 		-- e.vel.touching_up = movement.touching_up(pos)
