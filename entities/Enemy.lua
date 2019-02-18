@@ -47,7 +47,7 @@ function Enemy:init(x, y)
 			return other_e.team ~= 2
 		end,
 		collide_with_map = function(hit)
-			return true
+			return "slide"
 		end,
 		collide_with_entity = function(hit, already_applied)
 			if not already_applied then
@@ -58,7 +58,7 @@ function Enemy:init(x, y)
 				self.vel.dx = self.vel.dx + 2 * math.cos(angle)
 				self.vel.dy = self.vel.dy + 2 * math.sin(angle)
 			end
-			return true
+			return "end"
 		end,
 		get_collided_with = function(e, hit)
 			if self.drawable then

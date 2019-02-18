@@ -50,7 +50,7 @@ function love.load()
 		pos = {x = 50, y = 50, half_w = 3, half_h = 3},
 		vel = {dx = 0, dy = 0, dx_acc = 0, dy_acc = 0},
 		walker = {
-			top_speed = 1.5, accel = 0.1,
+			top_speed = 1.5, accel = 0.15,
 		},
 
 		player_controlled = true,
@@ -67,7 +67,7 @@ function love.load()
 				return other_e.team ~= 1
 			end,
 			collide_with_map = function(hit)
-				return true
+				return "slide"
 			end,
 			collide_with_entity = function(hit, already_applied)
 				if not already_applied then
@@ -78,7 +78,7 @@ function love.load()
 					player.vel.dx = player.vel.dx + 2 * math.cos(angle)
 					player.vel.dy = player.vel.dy + 2 * math.sin(angle)
 				end
-				return true
+				return "end"
 			end,
 			get_collided_with = function(e, hit)
 				if player.drawable then
@@ -195,10 +195,11 @@ function love.draw()
 	local dc = love.graphics.getStats()
 	love.graphics.print("Draws: "..dc.drawcalls, 2, window.h - 32)
 	-- love.graphics.print(map.grid_at_pos(mouse.x + camera.x)..", "..map.grid_at_pos(mouse.y + camera.y), 2, window.h - 16)
-	love.graphics.setColor(color.black)
-	love.graphics.print("Jackdaws Love My Big Sphinx of Quartz * 1234567890", 3, window.h - 15)
-	love.graphics.setColor(color.orange)
-	love.graphics.print("Jackdaws Love My Big Sphinx of Quartz * 1234567890", 2, window.h - 16)
+	-- love.graphics.setColor(color.black)
+	-- love.graphics.print("Jackdaws Love My Big Sphinx of Quartz * 1234567890", 3, window.h - 15)
+	-- love.graphics.setColor(color.orange)
+	-- love.graphics.print("Jackdaws Love My Big Sphinx of Quartz * 1234567890", 2, window.h - 16)
+	love.graphics.print("Entities: "..tiny.getEntityCount(world)..", Systems: "..tiny.getSystemCount(world), 2, window.h - 16)
 
 	-- collision.debug_map_collision_sweep(c_positions[player_id])
 	-- collision.debug_map_collision({x = mouse.x + camera.x, y = mouse.y + camera.y, half_w = 4, half_h = 4})
