@@ -8,8 +8,8 @@ DrawingSystem.active = false
 function DrawingSystem:draw()
 	-- draw all drawables
 	for _, e in pairs(self.entities) do
-		if e.drawable.flash_time > game_frame then
-			love.graphics.setColor(color.mix(e.drawable.color, e.drawable.flash_color, (e.drawable.flash_time - game_frame)/30))
+		if e.drawable.flash_end_frame > game_frame then
+			love.graphics.setColor(color.mix(e.drawable.color, e.drawable.flash_color, (e.drawable.flash_end_frame - game_frame)/30))
 		else
 			-- -- debug
 			-- if k == player_id and c_movements[k].grounded then

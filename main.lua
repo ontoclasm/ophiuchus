@@ -37,6 +37,7 @@ function love.load()
 	world = tiny.world(
 		require ("systems/PlayerControlSystem")(),
 		require ("systems/AIControlSystem")(),
+		require ("systems/WeaponSystem")(),
 		require ("systems/PhysicsSystem")(),
 		img.DrawingSystem
 	)
@@ -62,7 +63,6 @@ function love.load()
 			wake_frame = 0,
 		},
 		collides = {
-			map = true,
 			entity_filter = function(other_e)
 				return other_e.team ~= 1
 			end,
@@ -72,7 +72,7 @@ function love.load()
 			collide_with_entity = function(hit, already_applied)
 				if not already_applied then
 					if player.drawable then
-						player.drawable.flash_time = game_frame + 20
+						player.drawable.flash_end_frame = game_frame + 20
 					end
 					local angle = math.atan2(player.pos.y - hit.object.entity.pos.y, player.pos.x - hit.object.entity.pos.x)
 					player.vel.dx = player.vel.dx + 2 * math.cos(angle)
@@ -82,7 +82,7 @@ function love.load()
 			end,
 			get_collided_with = function(e, hit)
 				if player.drawable then
-					player.drawable.flash_time = game_frame + 20
+					player.drawable.flash_end_frame = game_frame + 20
 				end
 				local angle = math.atan2(player.pos.y - e.pos.y, player.pos.x - e.pos.x)
 				player.vel.dx = player.vel.dx + 2 * math.cos(angle)
@@ -91,11 +91,9 @@ function love.load()
 		},
 		drawable = {
 			sprite = "player", color = color.rouge,
-			flash_color = color.white, flash_time = 0,
+			flash_color = color.white, flash_end_frame = 0,
 		},
-		-- weapons = {
-		-- 	[1] = weapons.create("assault")
-		-- },
+		weapon = {model = "assault", ready_frame = 0},
 	})
 
 	local found, start_x, start_y = false, nil, nil

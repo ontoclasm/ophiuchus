@@ -366,7 +366,7 @@ end
 -- function movement.collision_responses.pop(k, mov, hit, mx, my, dx, dy, nx, ny)
 -- 	if hit[1] == "hitbox" then
 -- 		if c_drawables[hit[2]] then
--- 			c_drawables[hit[2]].flash_time = game_frame + 20
+-- 			c_drawables[hit[2]].flash_end_frame = game_frame + 20
 -- 		end
 
 -- 		local mov = c_movements[hit[2]]

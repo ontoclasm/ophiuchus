@@ -126,50 +126,50 @@ block_data["islope_-45"] =
 }
 
 -- 23 degree slopes are offset one pixel downwards to avoid jamming the player into a wall in acute corners
-block_data["slope_23_a"] =
-{
-	hp = 60,
-	breakable = true,
-	collision_type = "slope",
-	collision_dirs = { u = false, d = true, l = false, r = false},
-	slope = -0.5,
-	slope_y_offset = 2,
-	slope_vert_multiplier = 1,
-	box_half_multipliers = { u = 0, d = 1, l = 1, r = 1 },
-}
+-- block_data["slope_23_a"] =
+-- {
+-- 	hp = 60,
+-- 	breakable = true,
+-- 	collision_type = "slope",
+-- 	collision_dirs = { u = false, d = true, l = false, r = false},
+-- 	slope = -0.5,
+-- 	slope_y_offset = 2,
+-- 	slope_vert_multiplier = 1,
+-- 	box_half_multipliers = { u = 0, d = 1, l = 1, r = 1 },
+-- }
 
-block_data["slope_23_b"] =
-{
-	hp = 120,
-	breakable = true,
-	collision_type = "slope",
-	collision_dirs = { u = false, d = true, l = false, r = true},
-	slope = -0.5,
-	slope_y_offset = -2,
-	slope_vert_multiplier = 1,
-}
+-- block_data["slope_23_b"] =
+-- {
+-- 	hp = 120,
+-- 	breakable = true,
+-- 	collision_type = "slope",
+-- 	collision_dirs = { u = false, d = true, l = false, r = true},
+-- 	slope = -0.5,
+-- 	slope_y_offset = -2,
+-- 	slope_vert_multiplier = 1,
+-- }
 
-block_data["slope_-23_a"] =
-{
-	hp = 60,
-	breakable = true,
-	collision_type = "slope",
-	collision_dirs = { u = false, d = true, l = false, r = false},
-	slope = 0.5,
-	slope_y_offset = 2,
-	slope_vert_multiplier = 1,
-	box_half_multipliers = { u = 0, d = 1, l = 1, r = 1 },
-}
+-- block_data["slope_-23_a"] =
+-- {
+-- 	hp = 60,
+-- 	breakable = true,
+-- 	collision_type = "slope",
+-- 	collision_dirs = { u = false, d = true, l = false, r = false},
+-- 	slope = 0.5,
+-- 	slope_y_offset = 2,
+-- 	slope_vert_multiplier = 1,
+-- 	box_half_multipliers = { u = 0, d = 1, l = 1, r = 1 },
+-- }
 
-block_data["slope_-23_b"] =
-{
-	hp = 120,
-	breakable = true,
-	collision_type = "slope",
-	collision_dirs = { u = false, d = true, l = true, r = false},
-	slope = 0.5,
-	slope_y_offset = -2,
-	slope_vert_multiplier = 1,
-}
+-- block_data["slope_-23_b"] =
+-- {
+-- 	hp = 120,
+-- 	breakable = true,
+-- 	collision_type = "slope",
+-- 	collision_dirs = { u = false, d = true, l = true, r = false},
+-- 	slope = 0.5,
+-- 	slope_y_offset = -2,
+-- 	slope_vert_multiplier = 1,
+-- }
 
 return block_data

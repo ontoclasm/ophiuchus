@@ -19,7 +19,7 @@ function PhysicsSystem:process(e, dt)
 		dx_goal = e.controls.move_x
 		dy_goal = e.controls.move_y
 
-		if (e.collides and e.collides.map) and (math.abs(dx_goal) + math.abs(dy_goal) == 1) then
+		if (e.collides and e.collides.collide_with_map) and (math.abs(dx_goal) + math.abs(dy_goal) == 1) then
 			-- alter the controls based on adjacent walls
 			-- test one pixel in the relevant direction
 			hit_list = {}
@@ -86,7 +86,7 @@ function PhysicsSystem:move_with_collision(e, idx, idy, entity_list, tries, dt)
 
 	hit_list = {}
 
-	if e.collides.map then
+	if e.collides.collide_with_map then
 		-- get map hits
 		collision.map_collision_aabb_sweep(e.pos, idx, idy, hit_list)
 	end

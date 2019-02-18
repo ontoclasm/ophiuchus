@@ -29,7 +29,7 @@ function collisions.get_hit(j, k, attack, hit)
 	if mortals.apply_damage(j, k, attack.damage) then
 		-- OW
 		if c_drawables[j] then
-			c_drawables[j].flash_time = game_frame + 20
+			c_drawables[j].flash_end_frame = game_frame + 20
 			if attack.kb then
 				c_drawables[j].color = color.orange
 			end

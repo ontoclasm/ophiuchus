@@ -42,7 +42,6 @@ function Enemy:init(x, y)
 	}
 
 	self.collides = {
-		map = true,
 		entity_filter = function(other_e)
 			return other_e.team ~= 2
 		end,
@@ -51,29 +50,43 @@ function Enemy:init(x, y)
 		end,
 		collide_with_entity = function(hit, already_applied)
 			if not already_applied then
-				if self.drawable then
-					self.drawable.flash_time = game_frame + 20
+				if hit.object.entity.name == "Bullet" then
+					if self.drawable then
+						self.drawable.flash_end_frame = game_frame + 50
+					end
+					local angle = math.atan2(hit.object.entity.vel.dy, hit.object.entity.vel.dx)
+					self.vel.dx = self.vel.dx + 5 * math.cos(angle)
+					self.vel.dy = self.vel.dy + 5 * math.sin(angle)
+					self:get_stunned()
+				else
+					local angle = math.atan2(self.pos.y - hit.object.entity.pos.y, self.pos.x - hit.object.entity.pos.x)
+					self.vel.dx = self.vel.dx + 2 * math.cos(angle)
+					self.vel.dy = self.vel.dy + 2 * math.sin(angle)
 				end
-				local angle = math.atan2(self.pos.y - hit.object.entity.pos.y, self.pos.x - hit.object.entity.pos.x)
-				self.vel.dx = self.vel.dx + 2 * math.cos(angle)
-				self.vel.dy = self.vel.dy + 2 * math.sin(angle)
 			end
 			return "end"
 		end,
 		get_collided_with = function(e, hit)
-			if self.drawable then
-				self.drawable.flash_time = game_frame + 20
+			if e.name == "Bullet" then
+				if self.drawable then
+					self.drawable.flash_end_frame = game_frame + 50
+				end
+				local angle = math.atan2(e.vel.dy, e.vel.dx)
+				self.vel.dx = self.vel.dx + 2 * math.cos(angle)
+				self.vel.dy = self.vel.dy + 2 * math.sin(angle)
+				self:get_stunned()
+			else
+				local angle = math.atan2(self.pos.y - hit.object.entity.pos.y, self.pos.x - hit.object.entity.pos.x)
+				self.vel.dx = self.vel.dx + 2 * math.cos(angle)
+				self.vel.dy = self.vel.dy + 2 * math.sin(angle)
 			end
-			local angle = math.atan2(self.pos.y - e.pos.y, self.pos.x - e.pos.x)
-			self.vel.dx = self.vel.dx + 2 * math.cos(angle)
-			self.vel.dy = self.vel.dy + 2 * math.sin(angle)
 		end,
 	}
 
 	self.drawable = {
 		sprite = "player",
 		color = color.blue,
-		flash_color = color.white, flash_time = 0,
+		flash_color = color.white, flash_end_frame = 0,
 	}
 
 	self.hp = 30
@@ -81,6 +94,17 @@ end
 
 function Enemy:get_hit()
 
+end
+
+function Enemy:get_stunned()
+	if self.ai then
+		self.ai.state = "hunting"
+		self.ai.wake_frame = game_frame + 20
+	end
+	if self.controls then
+		self.controls.move_x = 0
+		self.controls.move_y = 0
+	end
 end
 
 function Enemy:die(silent)

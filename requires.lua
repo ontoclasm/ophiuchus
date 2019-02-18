@@ -12,10 +12,10 @@ img = require "img"
 input = require "input"
 map = require "map"
 mymath = require "mymath"
-weapons = require "weapons"
 
 block_data = require "block_data"
 
+Bullet = require "entities/Bullet"
 Enemy = require "entities/Enemy"
 
 -- constants

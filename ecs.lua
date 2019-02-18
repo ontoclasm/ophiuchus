@@ -24,7 +24,7 @@ function ecs.spawn_shot(kind, start_x, start_y, dx, dy)
 		},
 	}
 	c_drawables[id] =	{sprite = "bullet_23", color = color.rouge,
-						 flash_color = color.white, flash_time = 0,}
+						 flash_color = color.white, flash_end_frame = 0,}
 end
 
 function ecs.spawn_slash(kind, start_x, start_y, dx, dy, duration)
@@ -51,7 +51,7 @@ function ecs.spawn_slash(kind, start_x, start_y, dx, dy, duration)
 		},
 	}
 	-- c_drawables[id] =	{sprite = "bullet_23", color = color.white,
-	-- 					 flash_color = color.white, flash_time = 0,}
+	-- 					 flash_color = color.white, flash_end_frame = 0,}
 	c_timeouts[id] =	game_frame + duration
 end
 
@@ -65,7 +65,7 @@ function ecs.spawn_particle(kind, color, start_x, start_y, dx, dy, duration)
 		projectile_data = {},
 	}
 	c_drawables[id] =	{sprite = "bullet_23", color = color,
-						 flash_color = color.white, flash_time = 0,}
+						 flash_color = color.white, flash_end_frame = 0,}
 	c_timeouts[id] =	game_frame + duration
 end
 
@@ -117,7 +117,7 @@ function ecs.spawn_enemy()
 		},
 	}
 	c_drawables[id] =	{sprite = "player", color = color.ltblue,
-						 flash_color = color.white, flash_time = 0,}
+						 flash_color = color.white, flash_end_frame = 0,}
 	c_mortals[id] = {hp = 30, immunities = {}}
 	if mymath.one_chance_in(10) then
 		c_hitboxes[id].alignment = "friend"
