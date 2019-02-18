@@ -16,15 +16,38 @@ end
 
 function PhysicsSystem:process(e, dt)
 	if e.controls and e.walker then
-		dx_goal = e.controls.move_x * e.walker.top_speed
-		dy_goal = e.controls.move_y * e.walker.top_speed
+		dx_goal = e.controls.move_x
+		dy_goal = e.controls.move_y
 
+		if (e.collides and e.collides.map) and (math.abs(dx_goal) + math.abs(dy_goal) == 1) then
+			-- alter the controls based on adjacent walls
+			-- test one pixel in the relevant direction
+			hit_list = {}
+			collision.map_collision_aabb_sweep(e.pos, dx_goal, dy_goal, hit_list)
+			-- sort by impact time
+			table.sort(hit_list, function(hit_1, hit_2) return hit_1.time < hit_2.time end)
 
-		-- check adjacent walls
-		-- e.vel.touching_up = movement.touching_up(pos)
-		-- e.vel.touching_down = movement.touching_down(pos)
-		-- e.vel.touching_left = movement.touching_left(pos)
-		-- e.vel.touching_right = movement.touching_right(pos)
+			if #hit_list >= 1 and hit_list[1].object.kind == "wall" then
+				if dx_goal == 0 then
+					if dy_goal == 1 and hit_list[1].ny < -0.01 then
+						-- south
+						dx_goal = mymath.sign(hit_list[1].nx)
+					elseif dy_goal == -1 and hit_list[1].ny > 0.01 then
+						-- north
+						dx_goal = mymath.sign(hit_list[1].nx)
+					end
+				elseif dx_goal == 1 and dy_goal == 0 and hit_list[1].nx < -0.01 then
+					-- east
+					dy_goal = mymath.sign(hit_list[1].ny)
+				elseif dy_goal == 0 and hit_list[1].nx > 0.01 then -- dx_goal == -1 here
+					-- west
+					dy_goal = mymath.sign(hit_list[1].ny)
+				end
+			end
+		end
+
+		dx_goal = dx_goal * e.walker.top_speed
+		dy_goal = dy_goal * e.walker.top_speed
 
 		-- xxx use abs_subtract?
 		if e.vel.dx >= dx_goal then
@@ -33,23 +56,11 @@ function PhysicsSystem:process(e, dt)
 			e.vel.dx = math.min(dx_goal, e.vel.dx + e.walker.accel)
 		end
 
-		-- if e.vel.dx > 0 and e.vel.touching_right then
-		-- 	e.vel.dx = 0
-		-- elseif e.vel.dx < 0 and e.vel.touching_left then
-		-- 	e.vel.dx = 0
-		-- end
-
 		if e.vel.dy >= dy_goal then
 			e.vel.dy = math.max(dy_goal, e.vel.dy - e.walker.accel)
 		else
 			e.vel.dy = math.min(dy_goal, e.vel.dy + e.walker.accel)
 		end
-
-		-- if e.vel.dy > 0 and e.vel.touching_down then
-		-- 	e.vel.dy = 0
-		-- elseif e.vel.dy < 0 and e.vel.touching_up then
-		-- 	e.vel.dy = 0
-		-- end
 	end
 
 	-- calculate how far to move this frame
