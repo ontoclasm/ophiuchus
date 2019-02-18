@@ -1,6 +1,7 @@
 local Enemy = class "Enemy"
 
 function Enemy:init(x, y)
+	self.id = idcounter.get_id("entity")
 	self.name = "Mook"
 	self.team = 2
 	self.birth_frame = game_frame
@@ -45,8 +46,11 @@ function Enemy:init(x, y)
 		entity_filter = function(other_e)
 			return other_e.team ~= 2
 		end,
-		collide_with = function(hit)
-			if hit.object.kind == "entity" then
+		collide_with_map = function(hit)
+			return true
+		end,
+		collide_with_entity = function(hit, already_applied)
+			if not already_applied then
 				if self.drawable then
 					self.drawable.flash_time = game_frame + 20
 				end
@@ -68,7 +72,7 @@ function Enemy:init(x, y)
 
 	self.drawable = {
 		sprite = "player",
-		color = color.ltblue,
+		color = color.blue,
 		flash_color = color.white, flash_time = 0,
 	}
 

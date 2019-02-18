@@ -7,6 +7,13 @@ local hit_x, hit_y, hit_time, nx, ny, other_pos
 COARSE_GRID_SIZE = 64
 local other_pos_coarse = {half_h = COARSE_GRID_SIZE, half_w = COARSE_GRID_SIZE}
 local hit_list = {}
+local already_applied_hits = {}
+local already_applied = false
+
+function PhysicsSystem:preProcess(dt)
+	already_applied_hits = {}
+end
+
 function PhysicsSystem:process(e, dt)
 	if e.controls and e.walker then
 		dx_goal = e.controls and e.controls.move_x * e.walker.top_speed or 0
@@ -86,10 +93,23 @@ function PhysicsSystem:process(e, dt)
 			local stop = false
 
 			for _, hit in ipairs(hit_list) do
-				-- tell e it ran into something; tell other_e it got run into.
-				stop = e.collides.collide_with(hit)
 				if hit.object.kind == "entity" then
-					hit.object.entity.collides.get_collided_with(e, hit)
+					already_applied = false
+					for i,v in ipairs(already_applied_hits) do
+						if v[1] == hit.object.entity.id and v[2] == e.id then
+							-- we already did this one
+							already_applied = true
+							break
+						end
+					end
+
+					stop = e.collides.collide_with_entity(hit, already_applied)
+					if not already_applied then
+						table.insert(already_applied_hits, {e.id, hit.object.entity.id})
+						hit.object.entity.collides.get_collided_with(e, hit)
+					end
+				else
+					stop = e.collides.collide_with_map(hit)
 				end
 
 				if stop then

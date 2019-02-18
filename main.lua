@@ -42,6 +42,7 @@ function love.load()
 	)
 
 	player = tiny.addEntity(world, {
+		id = idcounter.get_id("entity"),
 		name = "Player",
 		team = 1,
 		birth_frame = 0,
@@ -65,25 +66,28 @@ function love.load()
 			entity_filter = function(other_e)
 				return other_e.team ~= 1
 			end,
-			collide_with = function(hit)
-			if hit.object.kind == "entity" then
+			collide_with_map = function(hit)
+				return true
+			end,
+			collide_with_entity = function(hit, already_applied)
+				if not already_applied then
+					if player.drawable then
+						player.drawable.flash_time = game_frame + 20
+					end
+					local angle = math.atan2(player.pos.y - hit.object.entity.pos.y, player.pos.x - hit.object.entity.pos.x)
+					player.vel.dx = player.vel.dx + 2 * math.cos(angle)
+					player.vel.dy = player.vel.dy + 2 * math.sin(angle)
+				end
+				return true
+			end,
+			get_collided_with = function(e, hit)
 				if player.drawable then
 					player.drawable.flash_time = game_frame + 20
 				end
-				local angle = math.atan2(player.pos.y - hit.object.entity.pos.y, player.pos.x - hit.object.entity.pos.x)
+				local angle = math.atan2(player.pos.y - e.pos.y, player.pos.x - e.pos.x)
 				player.vel.dx = player.vel.dx + 2 * math.cos(angle)
 				player.vel.dy = player.vel.dy + 2 * math.sin(angle)
-			end
-			return true
-		end,
-		get_collided_with = function(e, hit)
-			if player.drawable then
-				player.drawable.flash_time = game_frame + 20
-			end
-			local angle = math.atan2(player.pos.y - e.pos.y, player.pos.x - e.pos.x)
-			player.vel.dx = player.vel.dx + 2 * math.cos(angle)
-			player.vel.dy = player.vel.dy + 2 * math.sin(angle)
-		end,
+			end,
 		},
 		drawable = {
 			sprite = "player", color = color.rouge,
