@@ -63,13 +63,11 @@ function mymath.sign(n) return n>0 and 1 or n<0 and -1 or 0 end
 function mymath.round(n) return math.floor(n + 0.5) end
 
 function mymath.abs_floor(n)
-	if n >= 0 then return math.floor(n)
-	else return math.ceil(n) end
+	return n >= 0 and math.floor(n) or math.ceil(n)
 end
 
 function mymath.abs_ceil(n)
-	if n >= 0 then return math.ceil(n)
-	else return math.floor(n) end
+	return n >= 0 and math.ceil(n) or math.floor(n)
 end
 
 function mymath.one_chance_in(n) return love.math.random(1,n) == 1 end

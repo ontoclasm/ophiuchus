@@ -31,10 +31,10 @@ function collision.collision_aabb_slope(a, b, slope, slope_y_offset, slope_vert_
 end
 
 function collision.map_collision_aabb(a)
-	grid_x1 = map.grid_at_pos(a.x - a.half_w - 1)
-	grid_x2 = map.grid_at_pos(a.x + a.half_w + 1)
-	grid_y1 = map.grid_at_pos(a.y - a.half_h - 1)
-	grid_y2 = map.grid_at_pos(a.y + a.half_h + 1)
+	grid_x1 = math.floor(0.125 * (a.x - a.half_w - 1))
+	grid_x2 = math.floor(0.125 * (a.x + a.half_w + 1))
+	grid_y1 = math.floor(0.125 * (a.y - a.half_h - 1))
+	grid_y2 = math.floor(0.125 * (a.y + a.half_h + 1))
 
 	for i = grid_x1, grid_x2 do
 		for j = grid_y1, grid_y2 do
@@ -281,10 +281,10 @@ end
 
 function collision.map_collision_aabb_sweep_test(a, dx, dy, hit_list)
 	-- return true if we hit anything
-	grid_x1 = map.grid_at_pos(math.min(a.x - a.half_w - 1, a.x - a.half_w + dx - 1))
-	grid_x2 = map.grid_at_pos(math.max(a.x + a.half_w + 1, a.x + a.half_w + dx + 1))
-	grid_y1 = map.grid_at_pos(math.min(a.y - a.half_h - 1, a.y - a.half_h + dy - 1))
-	grid_y2 = map.grid_at_pos(math.max(a.y + a.half_h + 1, a.y + a.half_h + dy + 1))
+	grid_x1 = math.floor(0.125 * (math.min(a.x - a.half_w - 1, a.x - a.half_w + dx - 1)))
+	grid_x2 = math.floor(0.125 * (math.max(a.x + a.half_w + 1, a.x + a.half_w + dx + 1)))
+	grid_y1 = math.floor(0.125 * (math.min(a.y - a.half_h - 1, a.y - a.half_h + dy - 1)))
+	grid_y2 = math.floor(0.125 * (math.max(a.y + a.half_h + 1, a.y + a.half_h + dy + 1)))
 
 	mt = 1
 	hit = nil
@@ -317,10 +317,10 @@ end
 function collision.map_collision_aabb_sweep(a, dx, dy, hit_list)
 	-- populate hit_list with any collisions with the map
 	-- returns the list UNSORTED
-	grid_x1 = map.grid_at_pos(math.min(a.x - a.half_w - 1, a.x - a.half_w + dx - 1))
-	grid_x2 = map.grid_at_pos(math.max(a.x + a.half_w + 1, a.x + a.half_w + dx + 1))
-	grid_y1 = map.grid_at_pos(math.min(a.y - a.half_h - 1, a.y - a.half_h + dy - 1))
-	grid_y2 = map.grid_at_pos(math.max(a.y + a.half_h + 1, a.y + a.half_h + dy + 1))
+	grid_x1 = math.floor(0.125 * (math.min(a.x - a.half_w - 1, a.x - a.half_w + dx - 1)))
+	grid_x2 = math.floor(0.125 * (math.max(a.x + a.half_w + 1, a.x + a.half_w + dx + 1)))
+	grid_y1 = math.floor(0.125 * (math.min(a.y - a.half_h - 1, a.y - a.half_h + dy - 1)))
+	grid_y2 = math.floor(0.125 * (math.max(a.y + a.half_h + 1, a.y + a.half_h + dy + 1)))
 
 	hit = nil
 	for i = grid_x1, grid_x2 do
@@ -367,10 +367,10 @@ function collision.debug_map_collision_sweep(a)
 	dx = mouse.x + camera.x - a.x
 	dy = mouse.y + camera.y - a.y
 
-	grid_x1 = map.grid_at_pos(math.min(a.x - a.half_w, a.x - a.half_w + dx))
-	grid_x2 = map.grid_at_pos(math.max(a.x + a.half_w, a.x + a.half_w + dx))
-	grid_y1 = map.grid_at_pos(math.min(a.y - a.half_h, a.y - a.half_h + dy))
-	grid_y2 = map.grid_at_pos(math.max(a.y + a.half_h, a.y + a.half_h + dy))
+	grid_x1 = math.floor(0.125 * (math.min(a.x - a.half_w, a.x - a.half_w + dx)))
+	grid_x2 = math.floor(0.125 * (math.max(a.x + a.half_w, a.x + a.half_w + dx)))
+	grid_y1 = math.floor(0.125 * (math.min(a.y - a.half_h, a.y - a.half_h + dy)))
+	grid_y2 = math.floor(0.125 * (math.max(a.y + a.half_h, a.y + a.half_h + dy)))
 
 	first_hit = {x = a.x + dx, y = a.y + dy, time = 1, nx = 0, ny = 0, dx = dx, dy = dy}
 	hit = nil

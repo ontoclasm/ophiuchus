@@ -16,7 +16,7 @@ function map:new(w, h)
 end
 
 function map.grid_at_pos(px)
-	return math.floor(px / img.tile_size)
+	return math.floor(px * 0.125)
 end
 
 function map.bounding_box(x, y)

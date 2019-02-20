@@ -47,14 +47,14 @@ function love.load()
 		img.DrawingSystem
 	)
 
-	player = tiny.addEntity(world, Player:new(50, 50))
+	player = tiny.addEntity(world, Player:new(50, 300))
 
 	local found, start_x, start_y = false, nil, nil
 	for i = 1, 100 do
 		found = false
 		while not found do
-			start_x = love.math.random(1, mainmap.width * img.tile_size)
-			start_y = love.math.random(1, mainmap.height * img.tile_size)
+			start_x = love.math.random(mainmap.width * img.tile_size / 2, mainmap.width * img.tile_size)
+			start_y = love.math.random(1, mainmap.height * img.tile_size / 2)
 			found = not collision.map_collision_aabb({x = start_x, y = start_y, half_w = 3, half_h = 3})
 		end
 		tiny.addEntity(world, Enemy:new(start_x, start_y))

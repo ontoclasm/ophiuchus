@@ -26,6 +26,8 @@ function AIControlSystem:mook(e, dt)
 		if e.ai.state == "wandering" then
 			e.controls.move_x = love.math.random(3) - 2
 			e.controls.move_y = love.math.random(3) - 2
+
+			e.ai.wake_frame = game_frame + 60
 		elseif e.ai.state == "hunting" then
 			local target_pos = e.ai.hunting_target.pos
 			if not target_pos then
@@ -36,9 +38,10 @@ function AIControlSystem:mook(e, dt)
 				e.controls.move_x = mymath.abs_floor(dx * 1.99)
 				e.controls.move_y = mymath.abs_floor(dy * 1.99)
 			end
+
+			e.ai.wake_frame = game_frame + 20
 		end
 
-		e.ai.wake_frame = game_frame + 10 + love.math.random(40)
 	end
 end
 
