@@ -10,6 +10,7 @@ function Enemy:init(x, y)
 	self.vel = {dx = 0, dy = 0, dx_acc = 0, dy_acc = 0,}
 	self.walker = {
 		top_speed = 1, accel = 0.1,
+		knockable = true
 	}
 	-- used when knocked back
 	-- self.projectile = {
@@ -49,21 +50,28 @@ function Enemy:init(x, y)
 		solid_entity_reaction = "end",
 		is_solid = true,
 
-		attack_profile = true,
+		attack_profile = {push = 2, knocks = false},
 		defence_profile = true,
 	}
 
 	self.drawable = {
 		sprite = "player",
-		color = color.blue,
+		color = {0.15 + love.math.random() * 0.10,	0.20 + love.math.random() * 0.15,	0.80 + love.math.random() * 0.20},
 		flash_color = color.white, flash_end_frame = 0,
 	}
 
 	self.hp = 30
 end
 
-function Enemy:get_hit()
+function Enemy:get_knocked()
+	self.walker.knocked = true
+	self.collides.map_reaction = "bounce 0.8"
+end
 
+function Enemy:end_knock()
+	self.walker.knocked = false
+	self.collides.map_reaction = "slide"
+	self:get_stunned()
 end
 
 function Enemy:get_stunned()

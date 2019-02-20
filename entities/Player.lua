@@ -29,7 +29,7 @@ function Player:init(x, y)
 		solid_entity_reaction = "end",
 		is_solid = true,
 
-		attack_profile = true,
+		attack_profile = {push = 1, knocks = false},
 		defence_profile = true,
 	}
 

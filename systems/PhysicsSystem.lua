@@ -11,56 +11,70 @@ local hit_list = {}
 local already_applied_hits = {}
 local new
 
+local ap
+
 function PhysicsSystem:preProcess(dt)
 	already_applied_hits = {}
 end
 
 function PhysicsSystem:process(e, dt)
 	if e.controls and e.walker then
-		dx_goal = e.controls.move_x
-		dy_goal = e.controls.move_y
+		if e.walker.knocked then
+			local new_len = math.max(0, mymath.vector_length(e.vel.dx, e.vel.dy) - 2 * e.walker.accel)
+			local angle = math.atan2(e.vel.dy, e.vel.dx)
 
-		if (e.collides and e.collides.collides_with_map) and (math.abs(dx_goal) + math.abs(dy_goal) == 1) then
-			-- alter the controls based on adjacent walls
-			-- test one pixel in the relevant direction
-			hit_list = {}
-			collision.map_collision_aabb_sweep(e.pos, dx_goal, dy_goal, hit_list)
-			-- sort by impact time
-			table.sort(hit_list, function(hit_1, hit_2) return hit_1.time < hit_2.time end)
+			e.vel.dx = new_len * math.cos(angle)
+			e.vel.dy = new_len * math.sin(angle)
 
-			if #hit_list >= 1 and hit_list[1].object.kind == "wall" then
-				if dx_goal == 0 then
-					if dy_goal == 1 and hit_list[1].ny < -0.01 then
-						-- south
-						dx_goal = mymath.sign(hit_list[1].nx)
-					elseif dy_goal == -1 and hit_list[1].ny > 0.01 then
-						-- north
-						dx_goal = mymath.sign(hit_list[1].nx)
+			if e.vel.dx == 0 and e.vel.dy == 0 then
+				e:end_knock()
+			end
+		else
+			dx_goal = e.controls.move_x
+			dy_goal = e.controls.move_y
+
+			if (e.collides and e.collides.collides_with_map) and (math.abs(dx_goal) + math.abs(dy_goal) == 1) then
+				-- alter the controls based on adjacent walls
+				-- test one pixel in the relevant direction
+				hit_list = {}
+				collision.map_collision_aabb_sweep(e.pos, dx_goal, dy_goal, hit_list)
+				-- sort by impact time
+				table.sort(hit_list, function(hit_1, hit_2) return hit_1.time < hit_2.time end)
+
+				if #hit_list >= 1 and hit_list[1].object.kind == "wall" then
+					if dx_goal == 0 then
+						if dy_goal == 1 and hit_list[1].ny < -0.01 then
+							-- south
+							dx_goal = mymath.sign(hit_list[1].nx)
+						elseif dy_goal == -1 and hit_list[1].ny > 0.01 then
+							-- north
+							dx_goal = mymath.sign(hit_list[1].nx)
+						end
+					elseif dx_goal == 1 and dy_goal == 0 and hit_list[1].nx < -0.01 then
+						-- east
+						dy_goal = mymath.sign(hit_list[1].ny)
+					elseif dy_goal == 0 and hit_list[1].nx > 0.01 then -- dx_goal == -1 here
+						-- west
+						dy_goal = mymath.sign(hit_list[1].ny)
 					end
-				elseif dx_goal == 1 and dy_goal == 0 and hit_list[1].nx < -0.01 then
-					-- east
-					dy_goal = mymath.sign(hit_list[1].ny)
-				elseif dy_goal == 0 and hit_list[1].nx > 0.01 then -- dx_goal == -1 here
-					-- west
-					dy_goal = mymath.sign(hit_list[1].ny)
 				end
 			end
-		end
 
-		dx_goal = dx_goal * e.walker.top_speed
-		dy_goal = dy_goal * e.walker.top_speed
+			dx_goal = dx_goal * e.walker.top_speed
+			dy_goal = dy_goal * e.walker.top_speed
 
-		-- xxx use abs_subtract?
-		if e.vel.dx >= dx_goal then
-			e.vel.dx = math.max(dx_goal, e.vel.dx - e.walker.accel)
-		else
-			e.vel.dx = math.min(dx_goal, e.vel.dx + e.walker.accel)
-		end
+			-- xxx use abs_subtract?
+			if e.vel.dx >= dx_goal then
+				e.vel.dx = math.max(dx_goal, e.vel.dx - e.walker.accel)
+			else
+				e.vel.dx = math.min(dx_goal, e.vel.dx + e.walker.accel)
+			end
 
-		if e.vel.dy >= dy_goal then
-			e.vel.dy = math.max(dy_goal, e.vel.dy - e.walker.accel)
-		else
-			e.vel.dy = math.min(dy_goal, e.vel.dy + e.walker.accel)
+			if e.vel.dy >= dy_goal then
+				e.vel.dy = math.max(dy_goal, e.vel.dy - e.walker.accel)
+			else
+				e.vel.dy = math.min(dy_goal, e.vel.dy + e.walker.accel)
+			end
 		end
 	end
 
@@ -81,8 +95,9 @@ function PhysicsSystem:process(e, dt)
 end
 
 function PhysicsSystem:move_with_collision(e, idx, idy, entity_list, tries, dt)
-	if tries > 5 then
-		error("physics called too many times by " .. e.name .. ", id "..e.id.." at " .. e.pos.x .. ", " .. e.pos.y)
+	if tries > 16 then
+		-- error("physics called too many times by " .. e.name .. ", id "..e.id.." at " .. e.pos.x .. ", " .. e.pos.y)
+		return
 	end
 
 	hit_list = {}
@@ -219,21 +234,51 @@ function PhysicsSystem:collide(a, b, hit)
 	-- while moving, a ran into b
 	if a.team ~= b.team then
 		if a.collides.attack_profile and b.collides.defence_profile then
+			ap = a.collides.attack_profile
 			if b.drawable then
-				b.drawable.flash_end_frame = game_frame + 30
+				b.drawable.flash_end_frame = game_frame + 5*ap.push
 			end
 			local angle = math.atan2(b.pos.y - a.pos.y, b.pos.x - a.pos.x)
-			b.vel.dx = 2 * math.cos(angle)
-			b.vel.dy = 2 * math.sin(angle)
+			b.vel.dx = ap.push * math.cos(angle)
+			b.vel.dy = ap.push * math.sin(angle)
+			if ap.knock and b.walker and b.walker.knockable then
+				b:get_knocked()
+			end
 		end
 
 		if b.collides.attack_profile and a.collides.defence_profile then
+			ap = b.collides.attack_profile
 			if a.drawable then
-				a.drawable.flash_end_frame = game_frame + 30
+				a.drawable.flash_end_frame = game_frame + 5*ap.push
 			end
 			local angle = math.atan2(a.pos.y - b.pos.y, a.pos.x - b.pos.x)
-			a.vel.dx = 2 * math.cos(angle)
-			a.vel.dy = 2 * math.sin(angle)
+			a.vel.dx = ap.push * math.cos(angle)
+			a.vel.dy = ap.push * math.sin(angle)
+			if ap.knock and a.walker and a.walker.knockable then
+				a:get_knocked()
+			end
+		end
+	else
+		-- check for knocked dudes
+		local a_knocked = a.walker and a.walker.knocked
+		local b_knocked = b.walker and b.walker.knocked
+
+		if a_knocked and not b_knocked then
+			local len = mymath.vector_length(a.vel.dx, a.vel.dy)
+			local angle = mymath.average_angles(math.atan2(a.pos.y - b.pos.y, a.pos.x - b.pos.x), math.atan2(a.vel.dy, a.vel.dx))
+			-- if b.drawable then
+			-- 	b.drawable.flash_end_frame = game_frame + 5*len
+			-- end
+			b.vel.dx = 0.6 * len * math.cos(angle)
+			b.vel.dy = 0.6 * len * math.sin(angle)
+		elseif b_knocked and not a_knocked then
+			local len = mymath.vector_length(b.vel.dx, b.vel.dy)
+			local angle = mymath.average_angles(math.atan2(b.pos.y - a.pos.y, b.pos.x - a.pos.x), math.atan2(b.vel.dy, b.vel.dx))
+			if a.drawable then
+				a.drawable.flash_end_frame = game_frame + 5*len
+			end
+			a.vel.dx = 0.6 * len * math.cos(angle)
+			a.vel.dy = 0.6 * len * math.sin(angle)
 		end
 	end
 end

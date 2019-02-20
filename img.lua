@@ -20,15 +20,14 @@ function img.render()
 
 	-- draw all drawables
 	for _, e in pairs(img.DrawingSystem.entities) do
+		local sprite_color = e.drawable.color
+		if e.walker and e.walker.knocked then
+			sprite_color = color.orange
+		end
 		if e.drawable.flash_end_frame > game_frame then
-			love.graphics.setColor(color.mix(e.drawable.color, e.drawable.flash_color, (e.drawable.flash_end_frame - game_frame)/30))
+			love.graphics.setColor(color.mix(sprite_color, e.drawable.flash_color, math.sqrt((e.drawable.flash_end_frame - game_frame)/60)))
 		else
-			-- -- debug
-			-- if k == player_id and c_movements[k].grounded then
-			-- 	love.graphics.setColor(color.orange)
-			-- else
-				love.graphics.setColor(e.drawable.color)
-			-- end
+			love.graphics.setColor(sprite_color)
 		end
 		love.graphics.draw(img.tileset, img.tile[e.drawable.sprite][1],
 						   camera.view_x(e.pos) - (img.tile_size / 2), camera.view_y(e.pos) - (img.tile_size / 2))

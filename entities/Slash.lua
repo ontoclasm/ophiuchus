@@ -11,13 +11,7 @@ function Slash:init(x, y, dx, dy, team)
 	self.collides = {
 		collides_with_entities = true,
 
-		attack_profile = true,
-	}
-
-	self.drawable = {
-		sprite = "bullet_23",
-		color = color.yellow,
-		flash_color = color.white, flash_end_frame = 0,
+		attack_profile = {push = 9, knock = true},
 	}
 
 	ecs.add_death_timer(self, 1)

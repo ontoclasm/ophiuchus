@@ -4,7 +4,7 @@ function love.load()
 	gui_frame, game_frame = 0,0
 	hitstop_frames = 0
 
-	slogpixels:load() -- use the largest integer scale that fits on screen
+	slogpixels:load(2) -- leave blank to use the largest integer scale that fits on screen
 	window = {}
 	window.w, window.h = 320, 180
 	love.graphics.setBackgroundColor(color.rouge)
@@ -46,7 +46,7 @@ function love.load()
 	player = tiny.addEntity(world, Player:new(50, 50))
 
 	local found, start_x, start_y = false, nil, nil
-	for i = 1, 20 do
+	for i = 1, 100 do
 		found = false
 		while not found do
 			start_x = love.math.random(1, mainmap.width * img.tile_size)
