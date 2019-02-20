@@ -4,20 +4,20 @@ function camera.update()
 	target_pos = player.pos
 
 	-- lerp the camera
-	if controller:getActiveDevice() == "joystick" then
-		camera.tx = target_pos.x - window.w/2
-		camera.ty = target_pos.y - window.h/2
-	else
-		camera.tx = target_pos.x - window.w/2
-		camera.ty = target_pos.y - window.h/2
-	end
+	-- if controller:getActiveDevice() == "joystick" then
+	-- 	camera.tx = target_pos.x - window.w/2
+	-- 	camera.ty = target_pos.y - window.h/2
+	-- else
+		-- camera.tx = target_pos.x - window.w/2
+		-- camera.ty = target_pos.y - window.h/2
+	-- end
 
 	-- don't move if it's only a 1px adjustment; this avoids irritating little twitches due to rounding error in some cases
 	-- if math.abs(camera.tx - camera.rx) >= 2 then
-		camera.rx = camera.rx - (camera.rx - camera.tx) * 0.1
+		-- camera.rx = camera.rx - (camera.rx - camera.tx) * 0.1
 	-- end
 	-- if math.abs(camera.ty - camera.ry) >= 2 then
-		camera.ry = camera.ry - (camera.ry - camera.ty) * 0.1
+		-- camera.ry = camera.ry - (camera.ry - camera.ty) * 0.1
 	-- end
 
 	camera.x, camera.y = math.floor(target_pos.x - window.w/2), math.floor(target_pos.y - window.h/2)
