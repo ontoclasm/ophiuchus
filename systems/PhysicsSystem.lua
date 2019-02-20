@@ -109,7 +109,8 @@ function PhysicsSystem:move_with_collision(e, idx, idy, entity_list, tries, dt)
 
 	if e.collides.collides_with_entities then
 		for _, other_e in pairs(entity_list) do
-			if other_e.id ~= e.id and other_e.collides and other_e.collides.collides_with_entities then
+			if other_e.id ~= e.id and other_e.collides and other_e.collides.collides_with_entities
+				and ((other_e.team ~= e.team) or other_e.collides.collides_with_friends) then
 				other_pos_coarse.x, other_pos_coarse.y = other_e.pos.x, other_e.pos.y
 				-- first check if we're anywhere near it, then actually do the sweep. XXX useful or not?
 				if collision.collision_aabb_aabb(e.pos, other_pos_coarse) then

@@ -66,11 +66,13 @@ end
 function Enemy:get_knocked()
 	self.walker.knocked = true
 	self.collides.map_reaction = "bounce 0.8"
+	self.collides.collides_with_friends = true
 end
 
 function Enemy:end_knock()
 	self.walker.knocked = false
 	self.collides.map_reaction = "slide"
+	self.collides.collides_with_friends = false
 	self:get_stunned()
 end
 
