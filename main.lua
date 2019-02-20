@@ -19,7 +19,11 @@ function love.load()
 	font = love.graphics.newImageFont("art/font_small.png",
 		" abcdefghijklmnopqrstuvwxyz" ..
 		"ABCDEFGHIJKLMNOPQRSTUVWXYZ0" ..
-		"123456789.,!?-+/():;%&`'*#=[]\"")
+		"123456789.,!?-+/():;%&`'*#=[]\"|_")
+	font_mono = love.graphics.newImageFont("art/font_mono.png",
+		" abcdefghijklmnopqrstuvwxyz" ..
+		"ABCDEFGHIJKLMNOPQRSTUVWXYZ0" ..
+		"123456789.,!?-+/():;%&`'*#=[]\"|_")
 	love.graphics.setFont(font)
 	love.graphics.setLineWidth(1)
 
