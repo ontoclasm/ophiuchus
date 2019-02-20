@@ -7,8 +7,9 @@ local hit_x, hit_y, hit_time, nx, ny, other_pos
 COARSE_GRID_SIZE = 64
 local other_pos_coarse = {half_h = COARSE_GRID_SIZE, half_w = COARSE_GRID_SIZE}
 local hit_list = {}
+
 local already_applied_hits = {}
-local already_applied = false
+local new
 
 function PhysicsSystem:preProcess(dt)
 	already_applied_hits = {}
@@ -19,7 +20,7 @@ function PhysicsSystem:process(e, dt)
 		dx_goal = e.controls.move_x
 		dy_goal = e.controls.move_y
 
-		if (e.collides and e.collides.collide_with_map) and (math.abs(dx_goal) + math.abs(dy_goal) == 1) then
+		if (e.collides and e.collides.collides_with_map) and (math.abs(dx_goal) + math.abs(dy_goal) == 1) then
 			-- alter the controls based on adjacent walls
 			-- test one pixel in the relevant direction
 			hit_list = {}
@@ -81,19 +82,19 @@ end
 
 function PhysicsSystem:move_with_collision(e, idx, idy, entity_list, tries, dt)
 	if tries > 5 then
-		error(e.pos.x .. ", " .. e.pos.y)
+		error("physics called too many times by " .. e.name .. ", id "..e.id.." at " .. e.pos.x .. ", " .. e.pos.y)
 	end
 
 	hit_list = {}
 
-	if e.collides.collide_with_map then
+	if e.collides.collides_with_map then
 		-- get map hits
 		collision.map_collision_aabb_sweep(e.pos, idx, idy, hit_list)
 	end
 
-	if e.collides.entity_filter then
+	if e.collides.collides_with_entities then
 		for _, other_e in pairs(entity_list) do
-			if other_e.collides and e.collides.entity_filter(other_e) then
+			if other_e.id ~= e.id and other_e.collides and other_e.collides.collides_with_entities then
 				other_pos_coarse.x, other_pos_coarse.y = other_e.pos.x, other_e.pos.y
 				-- first check if we're anywhere near it, then actually do the sweep. XXX useful or not?
 				if collision.collision_aabb_aabb(e.pos, other_pos_coarse) then
@@ -119,22 +120,26 @@ function PhysicsSystem:move_with_collision(e, idx, idy, entity_list, tries, dt)
 		for _, v in ipairs(hit_list) do
 			hit = v
 			if hit.object.kind == "entity" then
-				already_applied = false
+				-- figure out how to proceed after this hit
+				reaction = PhysicsSystem:entity_collision_reaction(e, hit.object.entity, hit)
+
+				-- if we've already detected this collision from the other side, don't reapply it
+				new = true
 				for i,v in ipairs(already_applied_hits) do
 					if v[1] == hit.object.entity.id and v[2] == e.id then
 						-- we already did this one
-						already_applied = true
+						new = false
 						break
 					end
 				end
-
-				reaction = e.collides.collide_with_entity(hit, already_applied)
-				if not already_applied then
+				if new then
+					PhysicsSystem:collide(e, hit.object.entity, hit)
 					table.insert(already_applied_hits, {e.id, hit.object.entity.id})
-					hit.object.entity.collides.get_collided_with(e, hit)
 				end
 			else
-				reaction = e.collides.collide_with_map(hit)
+				-- XXX do something when hitting a wall
+
+				reaction = e.collides.map_reaction
 			end
 
 			if reaction ~= "pass" then
@@ -179,11 +184,12 @@ function PhysicsSystem:move_with_collision(e, idx, idy, entity_list, tries, dt)
 					PhysicsSystem:move_with_collision(e, idx, idy, entity_list, tries + 1, dt)
 				end
 			end
-		elseif reaction == "bounce" then
+		elseif string.sub(reaction, 1, 6) == "bounce" then
 			local dot = e.vel.dy * hit.ny + e.vel.dx * hit.nx
+			local restitution = string.sub(reaction, 8)
 
-			e.vel.dx = (e.vel.dx - 2 * dot * hit.nx) -- * self.bounce_restitution
-			e.vel.dy = (e.vel.dy - 2 * dot * hit.ny) -- * self.bounce_restitution
+			e.vel.dx = (e.vel.dx - 2 * dot * hit.nx) * restitution
+			e.vel.dy = (e.vel.dy - 2 * dot * hit.ny) * restitution
 
 			if hit.time < 1 then
 				-- try continuing our movement along the new vector
@@ -197,19 +203,56 @@ function PhysicsSystem:move_with_collision(e, idx, idy, entity_list, tries, dt)
 					PhysicsSystem:move_with_collision(e, idx, idy, entity_list, tries + 1, dt)
 				end
 			end
-		elseif reaction == "vanish" then
-			tiny.removeEntity(world, e)
+		elseif reaction == "die" or reaction == "vanish" then
+			if e.die then
+				e:die(reaction == "vanish")
+			else
+				tiny.removeEntity(world, e)
+			end
 		-- elseif reaction == "end" then
 			-- do nothing
 		end
-		-- if m_hit[1] == "block" and mainmap:block_at(m_hit[2], m_hit[3]) == "void" then
-		-- 	-- oob
-		-- 	movement.collision_responses.vanish(k)
-		-- elseif e.vel.collision_response then
-		-- 	-- react to the collision
-		-- 	idx, idy = mymath.normalize(idx, idy)
-		-- 	movement.collision_responses[e.vel.collision_response](k, mov, m_hit, m_hit_x, m_hit_y, idx, idy, m_nx, m_ny)
-		-- end
+	end
+end
+
+function PhysicsSystem:collide(a, b, hit)
+	-- while moving, a ran into b
+	if a.team ~= b.team then
+		if a.collides.attack_profile and b.collides.defence_profile then
+			if b.drawable then
+				b.drawable.flash_end_frame = game_frame + 30
+			end
+			local angle = math.atan2(b.pos.y - a.pos.y, b.pos.x - a.pos.x)
+			b.vel.dx = 2 * math.cos(angle)
+			b.vel.dy = 2 * math.sin(angle)
+		end
+
+		if b.collides.attack_profile and a.collides.defence_profile then
+			if a.drawable then
+				a.drawable.flash_end_frame = game_frame + 30
+			end
+			local angle = math.atan2(a.pos.y - b.pos.y, a.pos.x - b.pos.x)
+			a.vel.dx = 2 * math.cos(angle)
+			a.vel.dy = 2 * math.sin(angle)
+		end
+	end
+end
+
+function PhysicsSystem:entity_collision_reaction(a, b, hit)
+	-- how should a proceed after colliding with b?
+
+	-- pass: pass through, ignoring the hit
+	-- stick: stop and lose all momentum
+	-- slide: slide along the surface
+	-- bounce X: reflect off, with bounce restitution X
+	-- die: call a:die(false)
+	-- vanish: call a:die(true)
+	-- end: stop moving this frame, but retain momentum
+
+	if a.team == b.team or not b.collides.is_solid then
+		return "pass"
+	else
+		return a.collides.solid_entity_reaction or "pass"
 	end
 end
 

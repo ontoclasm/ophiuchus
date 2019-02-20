@@ -5,9 +5,9 @@ function Enemy:init(x, y)
 	self.name = "Mook"
 	self.team = 2
 	self.birth_frame = game_frame
+
 	self.pos = {x = x, y = y, half_w = 3, half_h = 3,}
 	self.vel = {dx = 0, dy = 0, dx_acc = 0, dy_acc = 0,}
-
 	self.walker = {
 		top_speed = 1, accel = 0.1,
 	}
@@ -42,45 +42,15 @@ function Enemy:init(x, y)
 	}
 
 	self.collides = {
-		entity_filter = function(other_e)
-			return other_e.team ~= 2
-		end,
-		collide_with_map = function(hit)
-			return "slide"
-		end,
-		collide_with_entity = function(hit, already_applied)
-			if not already_applied then
-				if hit.object.entity.name == "Bullet" then
-					if self.drawable then
-						self.drawable.flash_end_frame = game_frame + 50
-					end
-					local angle = math.atan2(hit.object.entity.vel.dy, hit.object.entity.vel.dx)
-					self.vel.dx = self.vel.dx + 5 * math.cos(angle)
-					self.vel.dy = self.vel.dy + 5 * math.sin(angle)
-					self:get_stunned()
-				else
-					local angle = math.atan2(self.pos.y - hit.object.entity.pos.y, self.pos.x - hit.object.entity.pos.x)
-					self.vel.dx = self.vel.dx + 2 * math.cos(angle)
-					self.vel.dy = self.vel.dy + 2 * math.sin(angle)
-				end
-			end
-			return "end"
-		end,
-		get_collided_with = function(e, hit)
-			if e.name == "Bullet" then
-				if self.drawable then
-					self.drawable.flash_end_frame = game_frame + 50
-				end
-				local angle = math.atan2(e.vel.dy, e.vel.dx)
-				self.vel.dx = self.vel.dx + 2 * math.cos(angle)
-				self.vel.dy = self.vel.dy + 2 * math.sin(angle)
-				self:get_stunned()
-			else
-				local angle = math.atan2(self.pos.y - hit.object.entity.pos.y, self.pos.x - hit.object.entity.pos.x)
-				self.vel.dx = self.vel.dx + 2 * math.cos(angle)
-				self.vel.dy = self.vel.dy + 2 * math.sin(angle)
-			end
-		end,
+		collides_with_map = true,
+		map_reaction = "slide",
+
+		collides_with_entities = true,
+		solid_entity_reaction = "end",
+		is_solid = true,
+
+		attack_profile = true,
+		defence_profile = true,
 	}
 
 	self.drawable = {
@@ -108,14 +78,14 @@ function Enemy:get_stunned()
 end
 
 function Enemy:die(silent)
-	if self.pos and self.drawable then
-		local pcolor = self.drawable and self.drawable.color or color.white
-		for n = 1, 20 do
-			angle = love.math.random() * 2 * PI
-			speed = 0.5 + love.math.random() * 5
-			ecs.spawn_particle(kind, pcolor, pos.x, pos.y, speed * math.cos(angle), speed * math.sin(angle), 10 + love.math.random(10))
-		end
-	end
+	-- if self.pos and self.drawable then
+	-- 	local pcolor = self.drawable and self.drawable.color or color.white
+	-- 	for n = 1, 20 do
+	-- 		angle = love.math.random() * 2 * PI
+	-- 		speed = 0.5 + love.math.random() * 5
+	-- 		ecs.spawn_particle(kind, pcolor, pos.x, pos.y, speed * math.cos(angle), speed * math.sin(angle), 10 + love.math.random(10))
+	-- 	end
+	-- end
 
 	tiny.removeEntity(world, self)
 	hitstop_frames = 5

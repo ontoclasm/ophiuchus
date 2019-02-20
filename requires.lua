@@ -17,6 +17,8 @@ block_data = require "block_data"
 
 Bullet = require "entities/Bullet"
 Enemy = require "entities/Enemy"
+Player = require "entities/Player"
+Slash = require "entities/Slash"
 
 -- constants
 PI = math.pi

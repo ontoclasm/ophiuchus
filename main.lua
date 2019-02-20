@@ -43,59 +43,7 @@ function love.load()
 		img.DrawingSystem
 	)
 
-	player = tiny.addEntity(world, {
-		id = idcounter.get_id("entity"),
-		name = "Player",
-		team = 1,
-		birth_frame = 0,
-
-		pos = {x = 50, y = 50, half_w = 3, half_h = 3},
-		vel = {dx = 0, dy = 0, dx_acc = 0, dy_acc = 0},
-		walker = {
-			top_speed = 1.5, accel = 0.15,
-		},
-
-		player_controlled = true,
-		controls = {
-			x = 0, y = 0,
-			aim_x = 0, aim_y = 0,
-			fire_pressed = false, fire_down = false,
-			altfire_pressed = false, altfire_down = false,
-			wake_frame = 0,
-		},
-		collides = {
-			entity_filter = function(other_e)
-				return other_e.team ~= 1
-			end,
-			collide_with_map = function(hit)
-				return "slide"
-			end,
-			collide_with_entity = function(hit, already_applied)
-				if not already_applied then
-					if player.drawable then
-						player.drawable.flash_end_frame = game_frame + 20
-					end
-					local angle = math.atan2(player.pos.y - hit.object.entity.pos.y, player.pos.x - hit.object.entity.pos.x)
-					player.vel.dx = player.vel.dx + 2 * math.cos(angle)
-					player.vel.dy = player.vel.dy + 2 * math.sin(angle)
-				end
-				return "end"
-			end,
-			get_collided_with = function(e, hit)
-				if player.drawable then
-					player.drawable.flash_end_frame = game_frame + 20
-				end
-				local angle = math.atan2(player.pos.y - e.pos.y, player.pos.x - e.pos.x)
-				player.vel.dx = player.vel.dx + 2 * math.cos(angle)
-				player.vel.dy = player.vel.dy + 2 * math.sin(angle)
-			end,
-		},
-		drawable = {
-			sprite = "player", color = color.rouge,
-			flash_color = color.white, flash_end_frame = 0,
-		},
-		weapon = {model = "assault", ready_frame = 0},
-	})
+	player = tiny.addEntity(world, Player:new(50, 50))
 
 	local found, start_x, start_y = false, nil, nil
 	for i = 1, 20 do
