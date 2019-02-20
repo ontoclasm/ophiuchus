@@ -39,6 +39,7 @@ function love.load()
 		require ("systems/AIControlSystem")(),
 		require ("systems/WeaponSystem")(),
 		require ("systems/PhysicsSystem")(),
+		require ("systems/TimerSystem")(),
 		img.DrawingSystem
 	)
 

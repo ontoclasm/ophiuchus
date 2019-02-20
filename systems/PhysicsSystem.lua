@@ -81,7 +81,7 @@ end
 
 function PhysicsSystem:move_with_collision(e, idx, idy, entity_list, tries, dt)
 	if tries > 5 then
-		error()
+		error(e.pos.x .. ", " .. e.pos.y)
 	end
 
 	hit_list = {}
@@ -175,7 +175,9 @@ function PhysicsSystem:move_with_collision(e, idx, idy, entity_list, tries, dt)
 				e.vel.dx_acc = e.vel.dx_acc - idx
 				e.vel.dy_acc = e.vel.dy_acc - idy
 
-				PhysicsSystem:move_with_collision(e, idx, idy, entity_list, tries + 1, dt)
+				if idx ~= 0 or idy ~= 0 then
+					PhysicsSystem:move_with_collision(e, idx, idy, entity_list, tries + 1, dt)
+				end
 			end
 		elseif reaction == "bounce" then
 			local dot = e.vel.dy * hit.ny + e.vel.dx * hit.nx
@@ -185,16 +187,15 @@ function PhysicsSystem:move_with_collision(e, idx, idy, entity_list, tries, dt)
 
 			if hit.time < 1 then
 				-- try continuing our movement along the new vector
-				e.vel.dx_acc = e.vel.dx * (1 - hit.time)
-				e.vel.dy_acc = e.vel.dy * (1 - hit.time)
+				e.vel.dx_acc = e.vel.dx_acc + e.vel.dx * (1 - hit.time)
+				e.vel.dy_acc = e.vel.dy_acc + e.vel.dy * (1 - hit.time)
 				idx, idy = mymath.abs_floor(e.vel.dx_acc), mymath.abs_floor(e.vel.dy_acc)
 				e.vel.dx_acc = e.vel.dx_acc - idx
 				e.vel.dy_acc = e.vel.dy_acc - idy
 
-				PhysicsSystem:move_with_collision(e, idx, idy, entity_list, tries + 1, dt)
-			else
-				e.vel.dx_acc = 0
-				e.vel.dy_acc = 0
+				if idx ~= 0 or idy ~= 0 then
+					PhysicsSystem:move_with_collision(e, idx, idy, entity_list, tries + 1, dt)
+				end
 			end
 		elseif reaction == "vanish" then
 			tiny.removeEntity(world, e)

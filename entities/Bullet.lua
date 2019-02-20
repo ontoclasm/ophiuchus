@@ -5,7 +5,7 @@ function Bullet:init(x, y, dx, dy, team)
 	self.name = "Bullet"
 	self.team = team
 	self.birth_frame = game_frame
-	self.pos = {x = x, y = y, half_w = 3, half_h = 3,}
+	self.pos = {x = x, y = y, half_w = 1, half_h = 1,}
 	self.vel = {dx = dx, dy = dy, dx_acc = 0, dy_acc = 0,}
 
 	self.collides = {
@@ -34,6 +34,8 @@ function Bullet:init(x, y, dx, dy, team)
 		color = color.rouge,
 		flash_color = color.white, flash_end_frame = 0,
 	}
+
+	ecs.add_death_timer(self, 30)
 end
 
 function Bullet:get_hit()

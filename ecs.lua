@@ -1,5 +1,24 @@
 local ecs = {}
 
+function ecs.add_timer(e, dur, f)
+	if not e.timers then
+		e.timers = {}
+		tiny.addEntity(world, e)
+	end
+
+	table.insert(e.timers, {
+		start_frame = game_frame,
+		end_frame = game_frame + dur,
+		end_function = f
+	})
+end
+
+function ecs.add_death_timer(e, dur)
+	ecs.add_timer(e, dur, function(timer, e, dt)
+		tiny.removeEntity(world, e)
+	end)
+end
+
 function ecs.spawn_shot(kind, start_x, start_y, dx, dy)
 	id = idcounter.get_id("entity")
 	c_identities[id] =	{name = "Pellet", birth_frame = game_frame}
@@ -123,19 +142,6 @@ function ecs.spawn_enemy()
 		c_hitboxes[id].alignment = "friend"
 		c_drawables[id].color = color.yellow
 	end
-end
-
-function ecs.delete_entity(id)
-	-- XXX there must be a better way :shobon:
-	c_identities[id] = nil
-	c_positions[id] = nil
-	c_movements[id] = nil
-	c_controls[id] = nil
-	c_drawables[id] = nil
-	c_weapons[id] = nil
-	c_timeouts[id] = nil
-	c_hitboxes[id] = nil
-	c_mortals[id] = nil
 end
 
 return ecs
