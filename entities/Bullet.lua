@@ -15,7 +15,7 @@ function Bullet:init(x, y, dx, dy, team)
 		collides_with_entities = true,
 		solid_entity_reaction = "die",
 
-		attack_profile = {push = 2, knocks = false},
+		attack_profile = {push = 2, knock = false},
 	}
 
 	self.drawable = {

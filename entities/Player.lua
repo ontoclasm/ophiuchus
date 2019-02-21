@@ -10,6 +10,7 @@ function Player:init(x, y)
 	self.vel = {dx = 0, dy = 0, dx_acc = 0, dy_acc = 0}
 	self.walker = {
 		top_speed = 1.5, accel = 0.15,
+		knockable = true
 	}
 
 	self.player_controlled = true
@@ -29,7 +30,7 @@ function Player:init(x, y)
 		solid_entity_reaction = "end",
 		is_solid = true,
 
-		attack_profile = {push = 1, knocks = false},
+		attack_profile = {push = 1, knock = false},
 		defence_profile = true,
 	}
 
@@ -39,6 +40,30 @@ function Player:init(x, y)
 	}
 
 	self.weapon = {model = "assault", ready_frame = 0}
+end
+
+function Player:get_knocked()
+	self.walker.knocked = true
+	if self.collides then
+		self.collides.map_reaction = "bounce 0.8"
+		self.collides.collides_with_entities = false
+	end
+	if self.drawable then
+		self.drawable.color = color.yellow
+	end
+end
+
+function Player:end_knock()
+	self.walker.knocked = false
+	self.collides.map_reaction = "slide"
+	ecs.add_timer(self, 60, function(timer, e, dt)
+		if e.collides then
+			e.collides.collides_with_entities = true
+		end
+		if e.drawable then
+			e.drawable.color = color.rouge
+		end
+	end)
 end
 
 function Player:die(silent)

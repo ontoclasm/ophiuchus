@@ -50,7 +50,7 @@ function Enemy:init(x, y)
 		solid_entity_reaction = "end",
 		is_solid = true,
 
-		attack_profile = {push = 2, knocks = false},
+		attack_profile = {push = 5, knock = true},
 		defence_profile = true,
 	}
 
