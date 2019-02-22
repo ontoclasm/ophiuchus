@@ -42,6 +42,7 @@ function Enemy:init(x, y)
 	self.hp = 30
 
 	self.drawable = {
+		layer = img.layer_enum.ACTOR,
 		sprite = "player",
 		color = {0.15 + love.math.random() * 0.10,	0.20 + love.math.random() * 0.15,	0.80 + love.math.random() * 0.20},
 		flash_color = color.white, flash_end_frame = 0,

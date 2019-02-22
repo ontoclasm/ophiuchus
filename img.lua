@@ -1,7 +1,4 @@
-local img = {tile = {}, new_blood = {}, DrawingSystem = tiny.system(class "DrawingSystem")}
-
-img.DrawingSystem.filter = tiny.requireAll("pos", "drawable")
-img.DrawingSystem.active = false
+local img = {tile = {}, new_blood = {}, DrawingSystem = tiny.sortedProcessingSystem(class "DrawingSystem")}
 
 function img.render()
 	-- add blood spatters
@@ -19,19 +16,10 @@ function img.render()
 	love.graphics.draw(img.tileset_batch, -(camera.x % 8), -(camera.y % 8))
 
 	-- draw all drawables
-	for _, e in pairs(img.DrawingSystem.entities) do
-		local sprite_color = e.drawable.color
-		if e.walker and e.walker.knocked then
-			sprite_color = color.orange
-		end
-		if e.drawable.flash_end_frame > game_frame then
-			love.graphics.setColor(color.mix(sprite_color, e.drawable.flash_color, math.sqrt((e.drawable.flash_end_frame - game_frame)/60)))
-		else
-			love.graphics.setColor(sprite_color)
-		end
-		love.graphics.draw(img.tileset, img.tile[e.drawable.sprite][1],
-						   camera.view_x(e.pos) - (img.tile_size / 2), camera.view_y(e.pos) - (img.tile_size / 2))
+	if img.DrawingSystem.modified then
+		img.DrawingSystem:onModify()
 	end
+	img.DrawingSystem:update()
 
 	love.graphics.setColor(color.white)
 end
@@ -284,5 +272,38 @@ function img.draw_rotational_sprite(name, frame, x, y, angle)
 
 	rotational_sprite_functions[angle](name, frame, x, y)
 end
+
+-- -- -- --
+
+img.DrawingSystem.filter = tiny.requireAll("pos", "drawable")
+img.DrawingSystem.active = false -- run manually since it needs to happen during the draw cycle
+
+local sprite_color
+function img.DrawingSystem:process(e, dt)
+	sprite_color = e.drawable.color
+	if e.walker and e.walker.knocked then
+		sprite_color = color.orange
+	end
+	if e.drawable.flash_end_frame > game_frame then
+		love.graphics.setColor(color.mix(sprite_color, e.drawable.flash_color, math.sqrt((e.drawable.flash_end_frame - game_frame)/60)))
+	else
+		love.graphics.setColor(sprite_color)
+	end
+	love.graphics.draw(img.tileset, img.tile[e.drawable.sprite][1],
+					   camera.view_x(e.pos) - (img.tile_size / 2), camera.view_y(e.pos) - (img.tile_size / 2))
+end
+
+function img.DrawingSystem:compare(e1, e2)
+	-- return true if e1 should come before e2
+
+	-- lower layers get drawn first
+	return e1.drawable.layer < e2.drawable.layer
+end
+
+img.layer_enum = {
+	ACTOR = 10,
+	PLAYER = 20,
+	PROJECTILE = 15,
+}
 
 return img

@@ -20,6 +20,7 @@ function Bullet:init(x, y, dx, dy, team)
 
 	self.drawable = {
 		sprite = "bullet_23",
+		layer = img.layer_enum.PROJECTILE,
 		color = color.rouge,
 		flash_color = color.white, flash_end_frame = 0,
 	}

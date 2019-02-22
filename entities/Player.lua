@@ -37,6 +37,7 @@ function Player:init(x, y)
 	self.hp = 30
 
 	self.drawable = {
+		layer = img.layer_enum.PLAYER,
 		sprite = "player", color = color.rouge,
 		flash_color = color.white, flash_end_frame = 0,
 	}
