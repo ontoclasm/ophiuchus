@@ -30,7 +30,7 @@ function love.load()
 
 	game_state = "play"
 
-	mainmap = map:new(48, 48)
+	mainmap = map:new(64, 64)
 	mainmap:fill_main()
 
 	img.setup()
