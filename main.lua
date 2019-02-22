@@ -15,6 +15,7 @@ function love.load()
 	love.mouse.setVisible(false)
 	love.mouse.setGrabbed(true)
 	mouse = {x = 0, y = 0}
+	slogpixels:setCursor(1)
 
 	font = love.graphics.newImageFont("art/font_small.png",
 		" abcdefghijklmnopqrstuvwxyz" ..
@@ -198,11 +199,13 @@ end
 function pause()
 	game_state = "pause"
 	pause_mouse_x, pause_mouse_y = love.mouse.getPosition()
+	slogpixels:setCursor(2)
 end
 
 function unpause()
 	game_state = "play"
 	love.mouse.setPosition(pause_mouse_x, pause_mouse_y)
+	slogpixels:setCursor(1)
 end
 
 function draw_pause_menu()

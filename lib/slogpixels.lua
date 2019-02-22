@@ -36,7 +36,7 @@ local baseHeight = love.graphics.getHeight()
 -- Config
 local allowUserResize = false -- Alow users to resize the window with window controls.
 -- Table holding the string to each cursor. Note: Make it blank if you don't plan on using a cursor.
-local cursorTable = {{"art/cursor.png",2,2},} -- Format {Path, -X, -Y offsets}
+local cursorTable = {{"art/cursor.png",4,4}, {"art/cursor2.png",1,1}} -- Format {Path, -X, -Y offsets}
 pixels.cursors = {} -- Table to hold image pointer for all cursors.
 for k,v in pairs(cursorTable) do
   pixels.cursors[k] = love.graphics.newImage(v[1])
