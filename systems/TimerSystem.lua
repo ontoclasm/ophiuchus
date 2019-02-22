@@ -16,4 +16,23 @@ function TimerSystem:process(e, dt)
 	end
 end
 
+function TimerSystem:add_timer(e, dur, f)
+	if not e.timers then
+		e.timers = {}
+		tiny.addEntity(world, e)
+	end
+
+	table.insert(e.timers, {
+		start_frame = game_frame,
+		end_frame = game_frame + dur,
+		end_function = f
+	})
+end
+
+function TimerSystem:add_death_timer(e, dur)
+	TimerSystem:add_timer(e, dur, function(timer, e, dt)
+		tiny.removeEntity(world, e)
+	end)
+end
+
 return TimerSystem

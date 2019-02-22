@@ -235,29 +235,11 @@ function PhysicsSystem:collide(a, b, hit)
 	-- while moving, a ran into b
 	if a.team ~= b.team then
 		if a.collides.attack_profile and b.collides.defence_profile then
-			ap = a.collides.attack_profile
-			if b.drawable then
-				b.drawable.flash_end_frame = game_frame + 5*ap.push
-			end
-			local angle = math.atan2(b.pos.y - a.pos.y, b.pos.x - a.pos.x)
-			b.vel.dx = ap.push * math.cos(angle)
-			b.vel.dy = ap.push * math.sin(angle)
-			if ap.knock and b.walker and b.walker.knockable then
-				b:get_knocked()
-			end
+			PhysicsSystem:apply_attack(a, b, hit)
 		end
 
 		if b.collides.attack_profile and a.collides.defence_profile then
-			ap = b.collides.attack_profile
-			if a.drawable then
-				a.drawable.flash_end_frame = game_frame + 5*ap.push
-			end
-			local angle = math.atan2(a.pos.y - b.pos.y, a.pos.x - b.pos.x)
-			a.vel.dx = ap.push * math.cos(angle)
-			a.vel.dy = ap.push * math.sin(angle)
-			if ap.knock and a.walker and a.walker.knockable then
-				a:get_knocked()
-			end
+			PhysicsSystem:apply_attack(b, a, hit)
 		end
 	else
 		-- check for knocked dudes
@@ -299,6 +281,23 @@ function PhysicsSystem:entity_collision_reaction(a, b, hit)
 		return "pass"
 	else
 		return a.collides.solid_entity_reaction or "pass"
+	end
+end
+
+function PhysicsSystem:apply_attack(a, b, hit)
+	ap = a.collides.attack_profile
+	if b.drawable then
+		b.drawable.flash_end_frame = game_frame + 5*ap.push
+	end
+	local angle = math.atan2(b.pos.y - a.pos.y, b.pos.x - a.pos.x)
+	b.vel.dx = ap.push * math.cos(angle)
+	b.vel.dy = ap.push * math.sin(angle)
+	if ap.knock and b.walker and b.walker.knockable then
+		b:get_knocked()
+	end
+	if ap.damage and b.hp then
+		b.hp = b.hp - ap.damage
+		-- dying etc. will be handled by the MortalSystem
 	end
 end
 

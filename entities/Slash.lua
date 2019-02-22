@@ -11,10 +11,10 @@ function Slash:init(x, y, dx, dy, team)
 	self.collides = {
 		collides_with_entities = true,
 
-		attack_profile = {push = 9, knock = true},
+		attack_profile = {damage = 30, push = 9, knock = true},
 	}
 
-	ecs.add_death_timer(self, 1)
+	TimerSystem:add_death_timer(self, 1)
 end
 
 function Slash:get_hit()

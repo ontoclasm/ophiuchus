@@ -12,21 +12,6 @@ function Enemy:init(x, y)
 		top_speed = 1, accel = 0.1,
 		knockable = true
 	}
-	-- used when knocked back
-	-- self.projectile = {
-	-- 	collides_with_map = true, collides_with_hitboxes = true,
-	-- 	collision_responses =
-	-- 	{
-	-- 		wall = "bounce",
-	-- 		void = "bounce",
-	-- 		enemy = "slow"
-	-- 	},
-	-- 	attack =
-	-- 	{
-	-- 		damage = 0,
-	-- 		kb_factor = 0.7,
-	-- 	},
-	-- }
 
 	self.ai = {
 		brain = "mook",
@@ -50,17 +35,17 @@ function Enemy:init(x, y)
 		solid_entity_reaction = "end",
 		is_solid = true,
 
-		attack_profile = {push = 5, knock = true},
+		attack_profile = {damage = 5, push = 5, knock = true},
 		defence_profile = true,
 	}
+
+	self.hp = 30
 
 	self.drawable = {
 		sprite = "player",
 		color = {0.15 + love.math.random() * 0.10,	0.20 + love.math.random() * 0.15,	0.80 + love.math.random() * 0.20},
 		flash_color = color.white, flash_end_frame = 0,
 	}
-
-	self.hp = 30
 end
 
 function Enemy:get_knocked()
@@ -98,7 +83,6 @@ function Enemy:die(silent)
 	-- end
 
 	tiny.removeEntity(world, self)
-	hitstop_frames = 5
 end
 
 return Enemy

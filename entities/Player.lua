@@ -30,9 +30,11 @@ function Player:init(x, y)
 		solid_entity_reaction = "end",
 		is_solid = true,
 
-		attack_profile = {push = 1, knock = false},
+		attack_profile = {damage = 5, push = 1, knock = false},
 		defence_profile = true,
 	}
+
+	self.hp = 30
 
 	self.drawable = {
 		sprite = "player", color = color.rouge,
@@ -51,12 +53,13 @@ function Player:get_knocked()
 	if self.drawable then
 		self.drawable.color = color.yellow
 	end
+	hitstop_frames = 5
 end
 
 function Player:end_knock()
 	self.walker.knocked = false
 	self.collides.map_reaction = "slide"
-	ecs.add_timer(self, 60, function(timer, e, dt)
+	TimerSystem:add_timer(self, 60, function(timer, e, dt)
 		if e.collides then
 			e.collides.collides_with_entities = true
 		end

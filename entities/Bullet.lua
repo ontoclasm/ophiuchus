@@ -15,7 +15,7 @@ function Bullet:init(x, y, dx, dy, team)
 		collides_with_entities = true,
 		solid_entity_reaction = "die",
 
-		attack_profile = {push = 2, knock = false},
+		attack_profile = {damage = 15, push = 2, knock = false},
 	}
 
 	self.drawable = {
@@ -24,7 +24,7 @@ function Bullet:init(x, y, dx, dy, team)
 		flash_color = color.white, flash_end_frame = 0,
 	}
 
-	ecs.add_death_timer(self, 30)
+	TimerSystem:add_death_timer(self, 30)
 end
 
 function Bullet:get_hit()

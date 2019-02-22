@@ -1,24 +1,5 @@
 local ecs = {}
 
-function ecs.add_timer(e, dur, f)
-	if not e.timers then
-		e.timers = {}
-		tiny.addEntity(world, e)
-	end
-
-	table.insert(e.timers, {
-		start_frame = game_frame,
-		end_frame = game_frame + dur,
-		end_function = f
-	})
-end
-
-function ecs.add_death_timer(e, dur)
-	ecs.add_timer(e, dur, function(timer, e, dt)
-		tiny.removeEntity(world, e)
-	end)
-end
-
 function ecs.spawn_shot(kind, start_x, start_y, dx, dy)
 	id = idcounter.get_id("entity")
 	c_identities[id] =	{name = "Pellet", birth_frame = game_frame}

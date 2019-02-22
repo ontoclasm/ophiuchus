@@ -40,11 +40,12 @@ function love.load()
 	blood_canvas:setFilter("linear", "nearest")
 
 	world = tiny.world(
-		require ("systems/PlayerControlSystem")(),
-		require ("systems/AIControlSystem")(),
-		require ("systems/WeaponSystem")(),
-		require ("systems/PhysicsSystem")(),
-		require ("systems/TimerSystem")(),
+		PlayerControlSystem,
+		AIControlSystem,
+		WeaponSystem,
+		PhysicsSystem,
+		TimerSystem,
+		MortalSystem,
 		img.DrawingSystem
 	)
 
@@ -140,8 +141,8 @@ function love.draw()
 	love.graphics.setColor(color.yellow)
 	love.graphics.print("FPS: "..love.timer.getFPS(), 2, window.h - 80)
 	love.graphics.setColor(color.ltblue)
-	love.graphics.print("Pos: "..player.pos.x..", "..player.pos.y, 2, window.h - 64)
-	love.graphics.print("Vel: "..string.format("%+.2f", player.vel.dx)..", "..string.format("%+.2f", player.vel.dy), 2, window.h - 48)
+	love.graphics.print("Pos: "..player.pos.x..", "..player.pos.y.."; Vel: "..string.format("%+.2f", player.vel.dx)..", "..string.format("%+.2f", player.vel.dy), 2, window.h - 64)
+	love.graphics.print("HP: "..player.hp, 2, window.h - 48)
 	-- love.graphics.print("pressed: "..(c_controls[player_id].fire_pressed and "t" or "f") ..", down: "..(c_controls[player_id].fire_down and "t" or "f"), 2, window.h - 48)
 	love.graphics.setColor(color.green)
 	local dc = love.graphics.getStats()

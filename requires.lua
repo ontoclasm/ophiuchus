@@ -20,6 +20,13 @@ Enemy = require "entities/Enemy"
 Player = require "entities/Player"
 Slash = require "entities/Slash"
 
+PlayerControlSystem = require ("systems/PlayerControlSystem")()
+AIControlSystem = require ("systems/AIControlSystem")()
+WeaponSystem = require ("systems/WeaponSystem")()
+PhysicsSystem = require ("systems/PhysicsSystem")()
+TimerSystem = require ("systems/TimerSystem")()
+MortalSystem = require ("systems/MortalSystem")()
+
 -- constants
 PI = math.pi
 ROOT_2 = math.sqrt(2)
