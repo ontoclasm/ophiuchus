@@ -39,6 +39,8 @@ function Enemy:init(x, y)
 		defence_profile = true,
 	}
 
+	self.activates_zones = true
+
 	self.hp = 30
 
 	self.drawable = {

@@ -59,11 +59,13 @@ function map:draw_fort(x, y, w, h)
 	self:set_block_rect("wall", x + 2 * w - 1, y, 1, h - 2)
 	self:set_block_rect("wall", x + 2 * w - 1, y + h + 2, 1, h - 2)
 
-	self:set_block_rect("air", x+1, y+1, w - 2, h - 2)
+	self:set_block_rect("air", x+1, y+1, w * 2 - 2, h * 2 - 2)
 	self:set_block("islope_45", x+1, y+1)
 	self:set_block("slope_-45", x+1, y + 2 * w - 2)
 	self:set_block("slope_45", x + 2 * h - 2, y + 2 * h - 2)
 	self:set_block("islope_-45", x + 2 * h - 2, y+1)
+
+	ZoneSystem:add_zone((x + w) * img.tile_size, (y + h) * img.tile_size, 32, 32)
 end
 
 function map:fill_main()

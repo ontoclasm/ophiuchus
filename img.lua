@@ -1,5 +1,13 @@
 local img = {tile = {}, new_blood = {}, DrawingSystem = tiny.sortedProcessingSystem(class "DrawingSystem")}
 
+img.layer_enum = {
+	FLOOR = 1,
+	ACTOR = 10,
+	PLAYER = 20,
+	PROJECTILE = 15,
+	PARTICLE = 25,
+}
+
 function img.render()
 	-- add blood spatters
 	love.graphics.setCanvas(blood_canvas)
@@ -102,7 +110,6 @@ function img.setup()
 	img.view_tileheight = math.ceil(window.h / img.tile_size)
 
 	img.tileset_batch = love.graphics.newSpriteBatch(img.tileset, (img.view_tilewidth+1)*(img.view_tileheight+1))
-	img.update_tileset_batch()
 end
 
 function img.nq(name, x, y)
@@ -294,6 +301,9 @@ function img.DrawingSystem:process(e, dt)
 
 	love.graphics.draw(img.tileset, img.tile[e.drawable.sprite][1],
 					   camera.view_x(e.pos) - (img.tile_size / 2), camera.view_y(e.pos) - (img.tile_size / 2))
+	if e.drawable.label then
+		love.graphics.print(e.drawable.label(), camera.view_x(e.pos) - (img.tile_size / 2) + 16, camera.view_y(e.pos) - (img.tile_size / 2))
+	end
 end
 
 function img.DrawingSystem:compare(e1, e2)
@@ -302,12 +312,5 @@ function img.DrawingSystem:compare(e1, e2)
 	-- lower layers get drawn first
 	return e1.drawable.layer < e2.drawable.layer
 end
-
-img.layer_enum = {
-	ACTOR = 10,
-	PLAYER = 20,
-	PROJECTILE = 15,
-	PARTICLE = 25,
-}
 
 return img

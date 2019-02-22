@@ -30,24 +30,26 @@ function love.load()
 
 	game_state = "play"
 
-	mainmap = map:new(64, 64)
-	mainmap:fill_main()
-
-	img.setup()
-	game_canvas = love.graphics.newCanvas()
-	game_canvas:setFilter("linear", "nearest")
-	blood_canvas = love.graphics.newCanvas((mainmap.width + 4) * img.tile_size, (mainmap.height + 4) * img.tile_size)
-	blood_canvas:setFilter("linear", "nearest")
-
 	world = tiny.world(
 		PlayerControlSystem,
 		AIControlSystem,
 		WeaponSystem,
 		PhysicsSystem,
+		ZoneSystem,
 		TimerSystem,
 		MortalSystem,
 		img.DrawingSystem
 	)
+
+	img.setup()
+
+	mainmap = map:new(64, 64)
+	mainmap:fill_main()
+
+	game_canvas = love.graphics.newCanvas()
+	game_canvas:setFilter("linear", "nearest")
+	blood_canvas = love.graphics.newCanvas((mainmap.width + 4) * img.tile_size, (mainmap.height + 4) * img.tile_size)
+	blood_canvas:setFilter("linear", "nearest")
 
 	player = tiny.addEntity(world, Player:new(50, 300))
 
@@ -133,8 +135,8 @@ function love.draw()
 	-- 	love.graphics.draw(img.cursor, mouse.x - 2, mouse.y - 2)
 	-- end
 
-	-- love.graphics.setColor(player.color)
-	-- love.graphics.print(player.hp, 20, 20)
+	love.graphics.setColor(player.drawable.color)
+	love.graphics.print("HP: "..player.hp, 2, 2)
 	love.graphics.setColor(color.white)
 	-- debug msg
 	love.graphics.print("Time: "..string.format("%.0f", game_frame / 60), 2, window.h - 96)
@@ -142,7 +144,6 @@ function love.draw()
 	love.graphics.print("FPS: "..love.timer.getFPS(), 2, window.h - 80)
 	love.graphics.setColor(color.ltblue)
 	love.graphics.print("Pos: "..player.pos.x..", "..player.pos.y.."; Vel: "..string.format("%+.2f", player.vel.dx)..", "..string.format("%+.2f", player.vel.dy), 2, window.h - 64)
-	love.graphics.print("HP: "..player.hp, 2, window.h - 48)
 	-- love.graphics.print("pressed: "..(c_controls[player_id].fire_pressed and "t" or "f") ..", down: "..(c_controls[player_id].fire_down and "t" or "f"), 2, window.h - 48)
 	love.graphics.setColor(color.green)
 	local dc = love.graphics.getStats()

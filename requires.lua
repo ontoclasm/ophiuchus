@@ -19,11 +19,13 @@ Enemy = require "entities/Enemy"
 Player = require "entities/Player"
 Particle = require "entities/Particle"
 Slash = require "entities/Slash"
+Zone = require "entities/Zone"
 
 PlayerControlSystem = require ("systems/PlayerControlSystem")()
 AIControlSystem = require ("systems/AIControlSystem")()
 WeaponSystem = require ("systems/WeaponSystem")()
 PhysicsSystem = require ("systems/PhysicsSystem")()
+ZoneSystem = require ("systems/ZoneSystem")()
 TimerSystem = require ("systems/TimerSystem")()
 MortalSystem = require ("systems/MortalSystem")()
 
