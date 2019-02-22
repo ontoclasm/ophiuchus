@@ -2,7 +2,7 @@ local PhysicsSystem = tiny.processingSystem(class "PhysicsSystem")
 
 PhysicsSystem.filter = tiny.requireAll("pos", "vel")
 
-local dx_goal, dy_goal
+local new_len, angle, dx_goal, dy_goal
 local hit_x, hit_y, hit_time, nx, ny, other_pos
 COARSE_GRID_SIZE = 64
 local other_pos_coarse = {half_h = COARSE_GRID_SIZE, half_w = COARSE_GRID_SIZE}
@@ -11,7 +11,7 @@ local hit_list = {}
 local already_applied_hits = {}
 local new
 
-local ap
+local push
 
 function PhysicsSystem:preProcess(dt)
 	already_applied_hits = {}
@@ -20,8 +20,8 @@ end
 function PhysicsSystem:process(e, dt)
 	if e.controls and e.walker then
 		if e.walker.knocked then
-			local new_len = math.max(0, mymath.vector_length(e.vel.dx, e.vel.dy) - 2 * e.walker.accel)
-			local angle = math.atan2(e.vel.dy, e.vel.dx)
+			new_len = math.max(0, mymath.vector_length(e.vel.dx, e.vel.dy) - 2 * e.walker.accel)
+			angle = math.atan2(e.vel.dy, e.vel.dx)
 
 			e.vel.dx = new_len * math.cos(angle)
 			e.vel.dy = new_len * math.sin(angle)
@@ -76,6 +76,12 @@ function PhysicsSystem:process(e, dt)
 				e.vel.dy = math.min(dy_goal, e.vel.dy + e.walker.accel)
 			end
 		end
+	elseif e.projectile then
+		new_len = math.max(0, mymath.vector_length(e.vel.dx, e.vel.dy) + e.projectile.accel)
+		angle = math.atan2(e.vel.dy, e.vel.dx)
+
+		e.vel.dx = new_len * math.cos(angle)
+		e.vel.dy = new_len * math.sin(angle)
 	end
 
 	-- calculate how far to move this frame
@@ -285,18 +291,18 @@ function PhysicsSystem:entity_collision_reaction(a, b, hit)
 end
 
 function PhysicsSystem:apply_attack(a, b, hit)
-	ap = a.collides.attack_profile
 	if b.drawable then
-		b.drawable.flash_end_frame = game_frame + 5*ap.push
+		b.drawable.flash_end_frame = game_frame + 15
 	end
+	push = a.collides.attack_profile.push * (0.8 + love.math.random() * 0.4)
 	local angle = math.atan2(b.pos.y - a.pos.y, b.pos.x - a.pos.x)
-	b.vel.dx = ap.push * math.cos(angle)
-	b.vel.dy = ap.push * math.sin(angle)
-	if ap.knock and b.walker and b.walker.knockable then
+	b.vel.dx = push * math.cos(angle)
+	b.vel.dy = push * math.sin(angle)
+	if a.collides.attack_profile.knock and b.walker and b.walker.knockable then
 		b:get_knocked()
 	end
-	if ap.damage and b.hp then
-		b.hp = b.hp - ap.damage
+	if a.collides.attack_profile.damage and b.hp then
+		b.hp = b.hp - a.collides.attack_profile.damage
 		-- dying etc. will be handled by the MortalSystem
 	end
 end

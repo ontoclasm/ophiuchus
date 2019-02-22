@@ -18,6 +18,7 @@ block_data = require "block_data"
 Bullet = require "entities/Bullet"
 Enemy = require "entities/Enemy"
 Player = require "entities/Player"
+Particle = require "entities/Particle"
 Slash = require "entities/Slash"
 
 PlayerControlSystem = require ("systems/PlayerControlSystem")()

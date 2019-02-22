@@ -51,7 +51,7 @@ end
 
 function Enemy:get_knocked()
 	self.walker.knocked = true
-	self.collides.map_reaction = "bounce 0.8"
+	self.collides.map_reaction = "bounce 1.0"
 	self.collides.collides_with_friends = true
 end
 
@@ -74,14 +74,14 @@ function Enemy:get_stunned()
 end
 
 function Enemy:die(silent)
-	-- if self.pos and self.drawable then
-	-- 	local pcolor = self.drawable and self.drawable.color or color.white
-	-- 	for n = 1, 20 do
-	-- 		angle = love.math.random() * 2 * PI
-	-- 		speed = 0.5 + love.math.random() * 5
-	-- 		ecs.spawn_particle(kind, pcolor, pos.x, pos.y, speed * math.cos(angle), speed * math.sin(angle), 10 + love.math.random(10))
-	-- 	end
-	-- end
+	if self.pos and self.drawable then
+		local pcolor = self.drawable and self.drawable.color or color.white
+		for n = 1, 20 do
+			angle = love.math.random() * 2 * PI
+			speed = 0.5 + love.math.random() * 5
+			tiny.addEntity(world, Particle:new(self.pos.x, self.pos.y, speed * math.cos(angle), speed * math.sin(angle), pcolor, 10 + love.math.random(10)))
+		end
+	end
 
 	tiny.removeEntity(world, self)
 end

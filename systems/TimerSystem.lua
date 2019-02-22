@@ -3,7 +3,7 @@ local TimerSystem = tiny.processingSystem(class "TimerSystem")
 TimerSystem.filter = tiny.requireAll("timers")
 
 function TimerSystem:process(e, dt)
-	if #e.timers == 0 then
+	if next(e.timers) == nil then
 		e.timers = nil
 		tiny.addEntity(world, e)
 	else
@@ -16,23 +16,45 @@ function TimerSystem:process(e, dt)
 	end
 end
 
-function TimerSystem:add_timer(e, dur, f)
+function TimerSystem:add_timer(e, dur, f, key)
 	if not e.timers then
 		e.timers = {}
 		tiny.addEntity(world, e)
 	end
 
-	table.insert(e.timers, {
-		start_frame = game_frame,
-		end_frame = game_frame + dur,
-		end_function = f
-	})
+	if key then
+		if e.timers[key] then
+			error()
+		else
+			e.timers[key] = {
+				start_frame = game_frame,
+				end_frame = game_frame + dur,
+				end_function = f
+			}
+		end
+	else
+		table.insert(e.timers, {
+			start_frame = game_frame,
+			end_frame = game_frame + dur,
+			end_function = f
+		})
+	end
 end
 
-function TimerSystem:add_death_timer(e, dur)
+function TimerSystem:add_lifetime(e, dur)
 	TimerSystem:add_timer(e, dur, function(timer, e, dt)
 		tiny.removeEntity(world, e)
-	end)
+	end, "lifetime")
+end
+
+local timer
+function TimerSystem:get_t(e, timer_key)
+	timer = e.timers and e.timers[timer_key] or nil
+	if timer then
+		return (game_frame - timer.start_frame) / (timer.end_frame - timer.start_frame)
+	else
+		error("bad timer id "..timer_key.." for "..e.name)
+	end
 end
 
 return TimerSystem

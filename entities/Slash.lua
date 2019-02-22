@@ -14,7 +14,7 @@ function Slash:init(x, y, dx, dy, team)
 		attack_profile = {damage = 30, push = 9, knock = true},
 	}
 
-	TimerSystem:add_death_timer(self, 1)
+	TimerSystem:add_lifetime(self, 1)
 end
 
 function Slash:get_hit()
