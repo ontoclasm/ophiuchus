@@ -314,6 +314,8 @@ function img.DrawingSystem:compare(e1, e2)
 
 	-- lower layers get drawn first
 	return e1.drawable.layer < e2.drawable.layer
+		or (e1.drawable.layer == e2.drawable.layer and e1.pos.y < e2.pos.y)
+		or (e1.drawable.layer == e2.drawable.layer and e1.pos.y == e2.pos.y and e1.pos.x > e2.pos.x)
 end
 
 return img
