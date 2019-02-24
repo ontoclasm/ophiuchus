@@ -288,22 +288,24 @@ img.DrawingSystem.active = false -- run manually since it needs to happen during
 
 local sprite_color
 function img.DrawingSystem:process(e, dt)
-	sprite_color = e.drawable.color
+	if mymath.in_window(e.pos.x, e.pos.y) then
+		sprite_color = e.drawable.color
 
-	if e.drawable.flash_end_frame > game_frame then
-		love.graphics.setColor(color.mix(sprite_color, e.drawable.flash_color, math.sqrt((e.drawable.flash_end_frame - game_frame)/60)))
-	elseif e.drawable.fades_away then
-		if e.timers and e.timers.lifetime then
-			love.graphics.setColor({sprite_color[1], sprite_color[2], sprite_color[3], math.sqrt(1 - TimerSystem:get_t(e, "lifetime"))})
+		if e.drawable.flash_end_frame > game_frame then
+			love.graphics.setColor(color.mix(sprite_color, e.drawable.flash_color, math.sqrt((e.drawable.flash_end_frame - game_frame)/60)))
+		elseif e.drawable.fades_away then
+			if e.timers and e.timers.lifetime then
+				love.graphics.setColor({sprite_color[1], sprite_color[2], sprite_color[3], math.sqrt(1 - TimerSystem:get_t(e, "lifetime"))})
+			end
+		else
+			love.graphics.setColor(sprite_color)
 		end
-	else
-		love.graphics.setColor(sprite_color)
-	end
 
-	love.graphics.draw(img.tileset, img.tile[e.drawable.sprite][1],
-					   camera.view_x(e.pos) - (img.tile_size / 2), camera.view_y(e.pos) - (img.tile_size / 2))
-	if e.drawable.label then
-		love.graphics.print(e.drawable.label(), camera.view_x(e.pos) - (img.tile_size / 2) + 16, camera.view_y(e.pos) - (img.tile_size / 2))
+		love.graphics.draw(img.tileset, img.tile[e.drawable.sprite][1],
+						   camera.view_x(e.pos) - (img.tile_size / 2), camera.view_y(e.pos) - (img.tile_size / 2))
+		if e.drawable.label then
+			love.graphics.print(e.drawable.label(), camera.view_x(e.pos) - (img.tile_size / 2) + 16, camera.view_y(e.pos) - (img.tile_size / 2))
+		end
 	end
 end
 
