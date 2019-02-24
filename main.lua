@@ -54,7 +54,7 @@ function love.load()
 	player = tiny.addEntity(world, Player:new(50, 300))
 
 	local found, start_x, start_y = false, nil, nil
-	for i = 1, 100 do
+	for i = 1, 40 do
 		found = false
 		while not found do
 			start_x = love.math.random(mainmap.width * img.tile_size / 2, mainmap.width * img.tile_size)
@@ -143,8 +143,8 @@ function love.draw()
 	love.graphics.setColor(color.yellow)
 	love.graphics.print("FPS: "..love.timer.getFPS(), 2, window.h - 80)
 	love.graphics.setColor(color.ltblue)
-	love.graphics.print("Pos: "..player.pos.x..", "..player.pos.y.."; Vel: "..string.format("%+.2f", player.vel.dx)..", "..string.format("%+.2f", player.vel.dy), 2, window.h - 64)
-	-- love.graphics.print("pressed: "..(c_controls[player_id].fire_pressed and "t" or "f") ..", down: "..(c_controls[player_id].fire_down and "t" or "f"), 2, window.h - 48)
+	love.graphics.print("Pos: "..player.pos.x..", "..player.pos.y, 2, window.h - 64)
+	love.graphics.print("Vel: "..string.format("%+.2f", player.vel.dx)..", "..string.format("%+.2f", player.vel.dy), 2, window.h - 48)
 	love.graphics.setColor(color.green)
 	local dc = love.graphics.getStats()
 	love.graphics.print("Draws: "..dc.drawcalls, 2, window.h - 32)
@@ -153,7 +153,7 @@ function love.draw()
 	-- love.graphics.print("Jackdaws Love My Big Sphinx of Quartz * 1234567890", 3, window.h - 15)
 	-- love.graphics.setColor(color.orange)
 	-- love.graphics.print("Jackdaws Love My Big Sphinx of Quartz * 1234567890", 2, window.h - 16)
-	love.graphics.print("Entities: "..tiny.getEntityCount(world)..", Systems: "..tiny.getSystemCount(world), 2, window.h - 16)
+	love.graphics.print("Entities: "..tiny.getEntityCount(world), 2, window.h - 16)
 
 	-- collision.debug_map_collision_sweep(c_positions[player_id])
 	-- collision.debug_map_collision({x = mouse.x + camera.x, y = mouse.y + camera.y, half_w = 4, half_h = 4})
