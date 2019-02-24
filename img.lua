@@ -24,6 +24,7 @@ function img.render()
 	love.graphics.draw(img.tileset_batch, -(camera.x % 8), -(camera.y % 8))
 
 	-- draw all drawables
+	tiny.refresh(world)
 	if img.DrawingSystem.modified then
 		img.DrawingSystem:onModify()
 	end
@@ -293,7 +294,7 @@ function img.DrawingSystem:process(e, dt)
 		love.graphics.setColor(color.mix(sprite_color, e.drawable.flash_color, math.sqrt((e.drawable.flash_end_frame - game_frame)/60)))
 	elseif e.drawable.fades_away then
 		if e.timers and e.timers.lifetime then
-			love.graphics.setColor({sprite_color[1], sprite_color[2], sprite_color[3], 1 - TimerSystem:get_t(e, "lifetime")})
+			love.graphics.setColor({sprite_color[1], sprite_color[2], sprite_color[3], math.sqrt(1 - TimerSystem:get_t(e, "lifetime"))})
 		end
 	else
 		love.graphics.setColor(sprite_color)
