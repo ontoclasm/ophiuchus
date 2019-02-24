@@ -65,7 +65,7 @@ function map:draw_fort(x, y, w, h)
 	self:set_block("slope_45", x + 2 * h - 2, y + 2 * h - 2)
 	self:set_block("islope_-45", x + 2 * h - 2, y+1)
 
-	ZoneSystem:add_zone((x + w) * img.tile_size, (y + h) * img.tile_size, 32, 32)
+	ZoneSystem:add_zone((x + w) * img.tile_size, (y + h) * img.tile_size, 8*w - 8, 8*h - 8)
 end
 
 function map:fill_main()

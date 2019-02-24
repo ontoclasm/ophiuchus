@@ -1,8 +1,10 @@
 color = {
 		white =		{1.00,	1.00,	1.00},
 		black =		{0.00,	0.00,	0.00},
+		dkrouge =	{0.50,	0.10,	0.10},
 		rouge =		{0.90,	0.20,	0.10},
 		actinic =	{0.60,	0.10,	0.95},
+		dkblue =	{0.15,	0.15,	0.70},
 		blue =		{0.20,	0.30,	0.90},
 		ltblue =	{0.40,	0.70,	0.90},
 		green =		{0.30,	0.80,	0.30},
@@ -11,6 +13,12 @@ color = {
 		dkgrey =	{0.20,	0.30,	0.30},
 		blood =		{0.30,	0.05,	0.10},
 		bg =		{0.10,	0.10,	0.30}
+}
+
+color.team_colors = {
+	[0] = color.dkgrey,
+	[1] = color.dkrouge,
+	[2] = color.dkblue,
 }
 
 function color.r(name)
