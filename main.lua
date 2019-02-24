@@ -6,7 +6,7 @@ function love.load()
 
 	slogpixels:load(2) -- leave blank to use the largest integer scale that fits on screen
 	window = {}
-	window.w, window.h = 320, 180
+	window.w, window.h = 480, 320
 	love.graphics.setBackgroundColor(color.rouge)
 
 	shader_desaturate = love.graphics.newShader("desaturate.lua")
