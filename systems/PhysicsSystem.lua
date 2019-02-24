@@ -253,37 +253,9 @@ function PhysicsSystem:collide(a, b, hit)
 		local b_knocked = b.walker and b.walker.knocked
 
 		if a_knocked and not b_knocked then
-			local len = mymath.vector_length(a.vel.dx, a.vel.dy)
-			if len > 0.5 then
-				local angle = mymath.average_angles(math.atan2(a.pos.y - b.pos.y, a.pos.x - b.pos.x), math.atan2(a.vel.dy, a.vel.dx))
-				-- if b.drawable then
-				-- 	b.drawable.flash_end_frame = game_frame + 5*len
-				-- end
-				b.vel.dx = 0.8 * len * math.cos(angle)
-				b.vel.dy = 0.8 * len * math.sin(angle)
-				if b.walker and b.walker.knockable then
-					b:get_knocked()
-				end
-				if b.hp then
-					b.hp = b.hp - math.floor(2 * len)
-				end
-			end
+			PhysicsSystem:apply_chain_knock(a, b, hit)
 		elseif b_knocked and not a_knocked then
-			local len = mymath.vector_length(b.vel.dx, b.vel.dy)
-			if len > 0.5 then
-				local angle = mymath.average_angles(math.atan2(b.pos.y - a.pos.y, b.pos.x - a.pos.x), math.atan2(b.vel.dy, b.vel.dx))
-				if a.drawable then
-					a.drawable.flash_end_frame = game_frame + 5*len
-				end
-				a.vel.dx = 0.8 * len * math.cos(angle)
-				a.vel.dy = 0.8 * len * math.sin(angle)
-				if a.walker and a.walker.knockable then
-					a:get_knocked()
-				end
-				if a.hp then
-					a.hp = a.hp - math.floor(2 * len)
-				end
-			end
+			PhysicsSystem:apply_chain_knock(b, a, hit)
 		end
 	end
 end
@@ -308,10 +280,11 @@ end
 
 function PhysicsSystem:apply_attack(a, b, hit)
 	if b.drawable then
-		b.drawable.flash_end_frame = game_frame + 15
+		b.drawable.flash_end_frame = game_frame + 3 * a.collides.attack_profile.push
 	end
 	push = a.collides.attack_profile.push * (0.8 + love.math.random() * 0.4)
-	local angle = math.atan2(b.pos.y - a.pos.y, b.pos.x - a.pos.x)
+	local angle = a.collides.attack_profile.velocity_push and math.atan2(a.vel.dy, a.vel.dx)
+		or math.atan2(b.pos.y - a.pos.y, b.pos.x - a.pos.x)
 	b.vel.dx = push * math.cos(angle)
 	b.vel.dy = push * math.sin(angle)
 	if a.collides.attack_profile.knock and b.walker and b.walker.knockable then
@@ -320,6 +293,27 @@ function PhysicsSystem:apply_attack(a, b, hit)
 	if a.collides.attack_profile.damage and b.hp then
 		b.hp = b.hp - a.collides.attack_profile.damage
 		-- dying etc. will be handled by the MortalSystem
+	end
+end
+
+function PhysicsSystem:apply_chain_knock(a, b, hit)
+	local len = mymath.vector_length(a.vel.dx, a.vel.dy)
+	if len > 0.5 then
+		if b.drawable then
+			b.drawable.flash_end_frame = game_frame + math.floor(2 * len)
+		end
+		local angle = mymath.average_angles(math.atan2(a.pos.y - b.pos.y, a.pos.x - b.pos.x), math.atan2(a.vel.dy, a.vel.dx))
+		-- if b.drawable then
+		-- 	b.drawable.flash_end_frame = game_frame + 5*len
+		-- end
+		b.vel.dx = 0.8 * len * math.cos(angle)
+		b.vel.dy = 0.8 * len * math.sin(angle)
+		if b.walker and b.walker.knockable then
+			b:get_knocked()
+		end
+		if b.hp then
+			b.hp = b.hp - math.floor(2 * len)
+		end
 	end
 end
 

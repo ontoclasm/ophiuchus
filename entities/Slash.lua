@@ -11,7 +11,7 @@ function Slash:init(x, y, dx, dy, team)
 	self.collides = {
 		collides_with_entities = true,
 
-		attack_profile = {damage = 30, push = 9, knock = true},
+		attack_profile = {damage = 30, push = 9, knock = true, velocity_push = true},
 	}
 
 	TimerSystem:add_lifetime(self, 1)

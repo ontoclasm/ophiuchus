@@ -18,7 +18,7 @@ Bullet.collides = {
 	collides_with_entities = true,
 	solid_entity_reaction = "die",
 
-	attack_profile = {damage = 15, push = 2, knock = false},
+	attack_profile = {damage = 15, push = 2, knock = false, velocity_push = true},
 }
 
 Bullet.drawable = {
