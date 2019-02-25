@@ -77,12 +77,7 @@ end
 
 function Enemy:die(silent)
 	if self.pos and self.drawable then
-		local pcolor = self.drawable and self.drawable.color or color.white
-		for n = 1, 20 do
-			angle = love.math.random() * 2 * PI
-			speed = 0.5 + love.math.random() * 5
-			tiny.addEntity(world, Particle:new(self.pos.x, self.pos.y, speed * math.cos(angle), speed * math.sin(angle), pcolor, 10 + love.math.random(10)))
-		end
+		particles.spray(self.pos.x, self.pos.y, 20, self.drawable.color, 0, PI, 0.5, 5, 5, 25)
 	end
 
 	tiny.removeEntity(world, self)

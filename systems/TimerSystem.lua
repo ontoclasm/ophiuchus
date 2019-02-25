@@ -43,7 +43,11 @@ end
 
 function TimerSystem:add_lifetime(e, dur)
 	TimerSystem:add_timer(e, dur, function(timer, e, dt)
-		tiny.removeEntity(world, e)
+		if e.die then
+			e:die(true)
+		else
+			tiny.removeEntity(world, e)
+		end
 	end, "lifetime")
 end
 

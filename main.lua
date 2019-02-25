@@ -50,6 +50,7 @@ function love.load()
 	game_canvas:setFilter("linear", "nearest")
 	blood_canvas = love.graphics.newCanvas((mainmap.width + 4) * img.tile_size, (mainmap.height + 4) * img.tile_size)
 	blood_canvas:setFilter("linear", "nearest")
+	particles.init()
 
 	player = tiny.addEntity(world, Player:new(50, 300))
 

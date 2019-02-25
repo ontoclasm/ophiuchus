@@ -11,6 +11,7 @@ img = require "img"
 input = require "input"
 map = require "map"
 mymath = require "mymath"
+particles = require "particles"
 
 block_data = require "block_data"
 
