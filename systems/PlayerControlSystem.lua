@@ -49,7 +49,7 @@ function PlayerControlSystem:process(e, dt)
 	--	mouse = {x = lovepixels.mousex, y = lovepixels.mousey}
 	-- end
 
-	e.controls.aim_x, e.controls.aim_y = mouse.x + camera.x, mouse.y + camera.y
+	e.controls.aim_x, e.controls.aim_y = mouse_x + camera.x, mouse_y + camera.y
 
 	-- face the cursor
 	-- if a.aim_x >= a.x then

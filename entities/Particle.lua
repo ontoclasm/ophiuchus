@@ -4,7 +4,7 @@ function Particle:init()
 	self.id = idcounter.get_id("entity")
 	self.name = "Particle"
 	self.team = 0
-	self.birth_frame = game_frame
+	self.birth_frame = 0
 	self.pos = {x = 0, y = 0, half_w = 1, half_h = 1,}
 	self.vel = {dx = 0, dy = 0, dx_acc = 0, dy_acc = 0,}
 	self.projectile = {accel = -0.3}

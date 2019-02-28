@@ -4,7 +4,7 @@ function Player:init(x, y)
 	self.id = idcounter.get_id("entity")
 	self.name = "Player"
 	self.team = 1
-	self.birth_frame = game_frame
+	self.birth_frame = gamestate.game_frame
 
 	self.pos = {x = x, y = y, half_w = 3, half_h = 3}
 	self.vel = {dx = 0, dy = 0, dx_acc = 0, dy_acc = 0}

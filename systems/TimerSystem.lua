@@ -8,7 +8,7 @@ function TimerSystem:process(e, dt)
 		tiny.addEntity(world, e)
 	else
 		for k,timer in pairs(e.timers) do
-			if game_frame >= timer.end_frame then
+			if gamestate.game_frame >= timer.end_frame then
 				timer.end_function(timer, e, dt)
 				e.timers[k] = nil
 			end
@@ -27,15 +27,15 @@ function TimerSystem:add_timer(e, dur, f, key)
 			error()
 		else
 			e.timers[key] = {
-				start_frame = game_frame,
-				end_frame = game_frame + dur,
+				start_frame = gamestate.game_frame,
+				end_frame = gamestate.game_frame + dur,
 				end_function = f
 			}
 		end
 	else
 		table.insert(e.timers, {
-			start_frame = game_frame,
-			end_frame = game_frame + dur,
+			start_frame = gamestate.game_frame,
+			end_frame = gamestate.game_frame + dur,
 			end_function = f
 		})
 	end
@@ -55,7 +55,7 @@ local timer
 function TimerSystem:get_t(e, timer_key)
 	timer = e.timers and e.timers[timer_key] or nil
 	if timer then
-		return (game_frame - timer.start_frame) / (timer.end_frame - timer.start_frame)
+		return (gamestate.game_frame - timer.start_frame) / (timer.end_frame - timer.start_frame)
 	else
 		error("bad timer id "..timer_key.." for "..e.name)
 	end

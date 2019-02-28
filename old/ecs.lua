@@ -2,7 +2,7 @@ local ecs = {}
 
 function ecs.spawn_shot(kind, start_x, start_y, dx, dy)
 	id = idcounter.get_id("entity")
-	c_identities[id] =	{name = "Pellet", birth_frame = game_frame}
+	c_identities[id] =	{name = "Pellet", birth_frame = gamestate.game_frame}
 	c_positions[id] =	{x = start_x, y = start_y, half_w = 1, half_h = 1}
 	c_movements[id] =
 	{
@@ -29,7 +29,7 @@ end
 
 function ecs.spawn_slash(kind, start_x, start_y, dx, dy, duration)
 	id = idcounter.get_id("entity")
-	c_identities[id] =	{name = "Slash", birth_frame = game_frame}
+	c_identities[id] =	{name = "Slash", birth_frame = gamestate.game_frame}
 	c_positions[id] =	{x = start_x, y = start_y, half_w = 6, half_h = 6}
 	c_movements[id] =
 	{
@@ -52,12 +52,12 @@ function ecs.spawn_slash(kind, start_x, start_y, dx, dy, duration)
 	}
 	-- c_drawables[id] =	{sprite = "bullet_23", color = color.white,
 	-- 					 flash_color = color.white, flash_end_frame = 0,}
-	c_timeouts[id] =	game_frame + duration
+	c_timeouts[id] =	gamestate.game_frame + duration
 end
 
 function ecs.spawn_particle(kind, color, start_x, start_y, dx, dy, duration)
 	id = idcounter.get_id("entity")
-	c_identities[id] =	{name = "Spark", birth_frame = game_frame}
+	c_identities[id] =	{name = "Spark", birth_frame = gamestate.game_frame}
 	c_positions[id] =	{x = start_x, y = start_y, half_w = 1, half_h = 1}
 	c_movements[id] =
 	{
@@ -66,19 +66,19 @@ function ecs.spawn_particle(kind, color, start_x, start_y, dx, dy, duration)
 	}
 	c_drawables[id] =	{sprite = "bullet_23", color = color,
 						 flash_color = color.white, flash_end_frame = 0,}
-	c_timeouts[id] =	game_frame + duration
+	c_timeouts[id] =	gamestate.game_frame + duration
 end
 
 function ecs.spawn_enemy()
 	-- find a spot
 	local found, start_x, start_y = false, nil, nil
 	while not found do
-		start_x = love.math.random(1, mainmap.width * img.tile_size)
-		start_y = love.math.random(1, mainmap.height * img.tile_size)
+		start_x = love.math.random(1, mainmap.width * TILE_SIZE)
+		start_y = love.math.random(1, mainmap.height * TILE_SIZE)
 		found = not physics.map_collision_aabb({x = start_x, y = start_y, half_w = 3, half_h = 3})
 	end
 	id = idcounter.get_id("entity")
-	c_identities[id] =	{name = "Mook", birth_frame = game_frame}
+	c_identities[id] =	{name = "Mook", birth_frame = gamestate.game_frame}
 	c_positions[id] =	{x = start_x, y = start_y, half_w = 3, half_h = 3}
 	c_hitboxes[id] =	{alignment = "enemy"}
 	c_controls[id] =	{

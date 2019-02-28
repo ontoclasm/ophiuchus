@@ -4,7 +4,7 @@ function Zone:init(x, y, hw, hh)
 	self.id = idcounter.get_id("entity")
 	self.name = "Zone"
 	self.team = 0
-	self.birth_frame = game_frame
+	self.birth_frame = gamestate.game_frame
 
 	self.pos = {x = x, y = y, half_w = hw, half_h = hh}
 

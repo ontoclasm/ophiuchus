@@ -10,15 +10,15 @@ img.layer_enum = {
 
 function img.render()
 	-- add blood spatters
-	love.graphics.setCanvas(blood_canvas)
-	love.graphics.setColor(color.blood)
-	for k,v in ipairs(img.new_blood) do
-		love.graphics.circle("fill", v.x + img.tile_size, v.y + img.tile_size, v.r)
-	end
-	img.new_blood = {}
+	-- love.graphics.setCanvas(img.blood_canvas)
+	-- love.graphics.setColor(color.blood)
+	-- for k,v in ipairs(img.new_blood) do
+	-- 	love.graphics.circle("fill", v.x + TILE_SIZE, v.y + TILE_SIZE, v.r)
+	-- end
+	-- img.new_blood = {}
 	love.graphics.setColor(color.white)
 	love.graphics.setCanvas(slogpixels.mainCanvas)
-	love.graphics.draw(blood_canvas, -camera.x - img.tile_size, -camera.y - img.tile_size)
+	-- love.graphics.draw(blood_canvas, -camera.x - TILE_SIZE, -camera.y - TILE_SIZE)
 
 	img.update_tileset_batch()
 	love.graphics.draw(img.tileset_batch, -(camera.x % 8), -(camera.y % 8))
@@ -35,8 +35,6 @@ end
 
 function img.setup()
 	img.cursor = love.graphics.newImage("art/cursor.png")
-
-	img.tile_size = 8
 
 	img.tileset = love.graphics.newImage("art/tileset.png")
 	img.tileset:setFilter("nearest", "linear")
@@ -107,8 +105,8 @@ function img.setup()
 	img.tile["explosion"][1] = love.graphics.newQuad(0, 448, 64, 64, img.tileset:getWidth(), img.tileset:getHeight())
 	img.tile["explosion"][2] = love.graphics.newQuad(64, 448, 64, 64, img.tileset:getWidth(), img.tileset:getHeight())
 
-	img.view_tilewidth = math.ceil(window.w / img.tile_size)
-	img.view_tileheight = math.ceil(window.h / img.tile_size)
+	img.view_tilewidth = math.ceil(window_w / TILE_SIZE)
+	img.view_tileheight = math.ceil(window_h / TILE_SIZE)
 
 	img.tileset_batch = love.graphics.newSpriteBatch(img.tileset, (img.view_tilewidth+1)*(img.view_tileheight+1))
 end
@@ -120,7 +118,7 @@ function img.nq(name, x, y)
 		img.tile[name].n = img.tile[name].n + 1
 	end
 
-	img.tile[name][img.tile[name].n] = love.graphics.newQuad(x * img.tile_size, y * img.tile_size, img.tile_size, img.tile_size,
+	img.tile[name][img.tile[name].n] = love.graphics.newQuad(x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE,
 										img.tileset:getWidth(), img.tileset:getHeight())
 end
 
@@ -160,14 +158,14 @@ local tileset_batch_old_x = nil
 local tileset_batch_old_y = nil
 redraw = false
 function img.update_tileset_batch()
-	new_x, new_y = math.floor(camera.x/img.tile_size), math.floor(camera.y/img.tile_size)
+	new_x, new_y = math.floor(camera.x/TILE_SIZE), math.floor(camera.y/TILE_SIZE)
 	if new_x ~= tileset_batch_old_x or new_y ~= tileset_batch_old_y or redraw == true then
 		img.tileset_batch:clear()
 		for x=0, img.view_tilewidth do
 			for y=0, img.view_tileheight do
 				if not block_data[mainmap:block_at(new_x+x, new_y+y)].invisible then
 					img.tileset_batch:add(img.tile[mainmap:block_at(new_x+x, new_y+y)][mainmap:tileframe_at(new_x+x, new_y+y)],
-										  x*img.tile_size, y*img.tile_size)
+										  x*TILE_SIZE, y*TILE_SIZE)
 				end
 			end
 		end
@@ -291,8 +289,8 @@ function img.DrawingSystem:process(e, dt)
 	if mymath.in_window(e.pos.x, e.pos.y) then
 		sprite_color = e.drawable.color
 
-		if e.drawable.flash_end_frame > game_frame then
-			love.graphics.setColor(color.mix(sprite_color, e.drawable.flash_color, math.sqrt((e.drawable.flash_end_frame - game_frame)/60)))
+		if e.drawable.flash_end_frame > gamestate.game_frame then
+			love.graphics.setColor(color.mix(sprite_color, e.drawable.flash_color, math.sqrt((e.drawable.flash_end_frame - gamestate.game_frame)/60)))
 		elseif e.drawable.fades_away then
 			if e.timers and e.timers.lifetime then
 				love.graphics.setColor({sprite_color[1], sprite_color[2], sprite_color[3], math.sqrt(1 - TimerSystem:get_t(e, "lifetime"))})
@@ -302,9 +300,9 @@ function img.DrawingSystem:process(e, dt)
 		end
 
 		love.graphics.draw(img.tileset, img.tile[e.drawable.sprite][1],
-						   camera.view_x(e.pos) - (img.tile_size / 2), camera.view_y(e.pos) - (img.tile_size / 2))
+						   camera.view_x(e.pos) - (TILE_SIZE / 2), camera.view_y(e.pos) - (TILE_SIZE / 2))
 		if e.drawable.label then
-			love.graphics.print(e.drawable.label(), camera.view_x(e.pos) - (img.tile_size / 2) + 16, camera.view_y(e.pos) - (img.tile_size / 2))
+			love.graphics.print(e.drawable.label(), camera.view_x(e.pos) - (TILE_SIZE / 2) + 16, camera.view_y(e.pos) - (TILE_SIZE / 2))
 		end
 	end
 end

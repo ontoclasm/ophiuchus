@@ -280,7 +280,7 @@ end
 
 function PhysicsSystem:apply_attack(a, b, hit)
 	if b.drawable then
-		b.drawable.flash_end_frame = game_frame + 3 * a.collides.attack_profile.push
+		b.drawable.flash_end_frame = gamestate.game_frame + 3 * a.collides.attack_profile.push
 	end
 	push = a.collides.attack_profile.push * (0.8 + love.math.random() * 0.4)
 	local angle = a.collides.attack_profile.velocity_push and math.atan2(a.vel.dy, a.vel.dx)
@@ -300,11 +300,11 @@ function PhysicsSystem:apply_chain_knock(a, b, hit)
 	local len = mymath.vector_length(a.vel.dx, a.vel.dy)
 	if len > 0.5 then
 		if b.drawable then
-			b.drawable.flash_end_frame = game_frame + math.floor(2 * len)
+			b.drawable.flash_end_frame = gamestate.game_frame + math.floor(2 * len)
 		end
 		local angle = mymath.average_angles(math.atan2(a.pos.y - b.pos.y, a.pos.x - b.pos.x), math.atan2(a.vel.dy, a.vel.dx))
 		-- if b.drawable then
-		-- 	b.drawable.flash_end_frame = game_frame + 5*len
+		-- 	b.drawable.flash_end_frame = gamestate.game_frame + 5*len
 		-- end
 		b.vel.dx = 0.8 * len * math.cos(angle)
 		b.vel.dy = 0.8 * len * math.sin(angle)

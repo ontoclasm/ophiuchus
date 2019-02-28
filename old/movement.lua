@@ -256,8 +256,8 @@ function movement.knockback(k, mov)
 
 	if new_len == 0 then
 		if not mov.kb_end_frame then
-			mov.kb_end_frame = game_frame + 20
-		elseif mov.kb_end_frame <= game_frame then
+			mov.kb_end_frame = gamestate.game_frame + 20
+		elseif mov.kb_end_frame <= gamestate.game_frame then
 			-- done being knocked
 			mov.kind = "walker"
 			c_drawables[k].color = color.ltblue
@@ -366,7 +366,7 @@ end
 -- function movement.collision_responses.pop(k, mov, hit, mx, my, dx, dy, nx, ny)
 -- 	if hit[1] == "hitbox" then
 -- 		if c_drawables[hit[2]] then
--- 			c_drawables[hit[2]].flash_end_frame = game_frame + 20
+-- 			c_drawables[hit[2]].flash_end_frame = gamestate.game_frame + 20
 -- 		end
 
 -- 		local mov = c_movements[hit[2]]

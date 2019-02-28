@@ -20,7 +20,7 @@ function map.grid_at_pos(px)
 end
 
 function map.bounding_box(x, y)
-	return {x = img.tile_size * (x + 0.5), y = img.tile_size * (y + 0.5), half_w = img.tile_size / 2, half_h = img.tile_size / 2}
+	return {x = TILE_SIZE * (x + 0.5), y = TILE_SIZE * (y + 0.5), half_w = TILE_SIZE / 2, half_h = TILE_SIZE / 2}
 end
 
 function map.orth_normal_to_dir(nx, ny)
@@ -65,7 +65,7 @@ function map:draw_fort(x, y, w, h)
 	self:set_block("slope_45", x + 2 * h - 2, y + 2 * h - 2)
 	self:set_block("islope_-45", x + 2 * h - 2, y+1)
 
-	ZoneSystem:add_zone((x + w) * img.tile_size, (y + h) * img.tile_size, 8*w - 8, 8*h - 8)
+	ZoneSystem:add_zone((x + w) * TILE_SIZE, (y + h) * TILE_SIZE, 8*w - 8, 8*h - 8)
 end
 
 function map:fill_main()
@@ -170,7 +170,7 @@ function map:can_stand_on_pos(px, py)
 		-- kill me
 		slope = block_data[self:block_at(gx, gy)].slope
 		if slope then
-			return py + 1 >= slope * (px - img.tile_size * (gx + 0.5)) + img.tile_size * (gy + 0.5) + block_data[self:block_at(gx, gy)].slope_y_offset
+			return py + 1 >= slope * (px - TILE_SIZE * (gx + 0.5)) + TILE_SIZE * (gy + 0.5) + block_data[self:block_at(gx, gy)].slope_y_offset
 		end
 	end
 	return false
@@ -191,19 +191,19 @@ function map:destroy_block(x, y)
 	for i=1,10 do
 		angle = love.math.random() * math.pi * 2
 		v = 200 + 200 * love.math.random()
-		spark_data.spawn("spark_s", color.white, img.tile_size * (x + love.math.random()), img.tile_size * (y + love.math.random()),
+		spark_data.spawn("spark_s", color.white, TILE_SIZE * (x + love.math.random()), TILE_SIZE * (y + love.math.random()),
 						 v * math.cos(angle), v * math.sin(angle), 0, 1, 1)
 	end
 	for i=1,4 do
 		angle = love.math.random() * math.pi * 2
 		v = 200 + 200 * love.math.random()
-		spark_data.spawn("chunk_s", color.white, img.tile_size * (x + love.math.random()), img.tile_size * (y + love.math.random()),
+		spark_data.spawn("chunk_s", color.white, TILE_SIZE * (x + love.math.random()), TILE_SIZE * (y + love.math.random()),
 						 v * math.cos(angle), v * math.sin(angle), 0, 1, 1)
 	end
 	for i=1,2 do
 		angle = love.math.random() * math.pi * 2
 		v = 200 + 200 * love.math.random()
-		spark_data.spawn("chunk_m", color.white, img.tile_size * (x + love.math.random()), img.tile_size * (y + love.math.random()),
+		spark_data.spawn("chunk_m", color.white, TILE_SIZE * (x + love.math.random()), TILE_SIZE * (y + love.math.random()),
 						 v * math.cos(angle), v * math.sin(angle), 0, 1, 1)
 	end
 end

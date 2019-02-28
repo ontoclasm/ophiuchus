@@ -67,4 +67,8 @@ function ZoneSystem:remove_zone(zone)
 	self.zone_list[zone.id] = nil
 end
 
+function ZoneSystem:onRemoveFromWorld()
+	error("fuck")
+end
+
 return ZoneSystem

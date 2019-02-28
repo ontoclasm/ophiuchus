@@ -46,8 +46,8 @@ function mymath.dist(x1,y1, x2,y2) return ((x2-x1)^2+(y2-y1)^2)^0.5 end
 
 local window_border = 32
 function mymath.in_window(x, y)
-	return (camera.x - window_border <= x and x < (camera.x + window.w + window_border)
-			and camera.y - window_border <= y and y < (camera.y + window.h + window_border))
+	return (camera.x - window_border <= x and x < (camera.x + window_w + window_border)
+			and camera.y - window_border <= y and y < (camera.y + window_h + window_border))
 end
 
 function mymath.abs_subtract(a, d)

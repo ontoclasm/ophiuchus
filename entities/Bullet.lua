@@ -4,7 +4,7 @@ function Bullet:init(x, y, dx, dy, team)
 	self.id = idcounter.get_id("entity")
 	self.name = "Bullet"
 	self.team = team
-	self.birth_frame = game_frame
+	self.birth_frame = gamestate.game_frame
 	self.pos = {x = x, y = y, half_w = 1, half_h = 1,}
 	self.vel = {dx = dx, dy = dy, dx_acc = 0, dy_acc = 0,}
 

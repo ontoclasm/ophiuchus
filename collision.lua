@@ -376,8 +376,8 @@ local ijhx, ijhy, ijht, ijnx, ijny
 local rt, rdx, rdy
 
 function collision.debug_map_collision_sweep(a)
-	dx = mouse.x + camera.x - a.x
-	dy = mouse.y + camera.y - a.y
+	dx = mouse_x + camera.x - a.x
+	dy = mouse_y + camera.y - a.y
 
 	grid_x1 = floor(0.125 * (min(a.x - a.half_w, a.x - a.half_w + dx)))
 	grid_x2 = floor(0.125 * (max(a.x + a.half_w, a.x + a.half_w + dx)))

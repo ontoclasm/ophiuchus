@@ -4,7 +4,7 @@ function Enemy:init(x, y)
 	self.id = idcounter.get_id("entity")
 	self.name = "Mook"
 	self.team = 2
-	self.birth_frame = game_frame
+	self.birth_frame = gamestate.game_frame
 
 	self.pos = {x = x, y = y, half_w = 3, half_h = 3,}
 	self.vel = {dx = 0, dy = 0, dx_acc = 0, dy_acc = 0,}
@@ -17,10 +17,9 @@ function Enemy:init(x, y)
 		brain = "mook",
 		state = "thinking",
 		wake_frame = 0,
-		hunting_target = player,
+		hunting_target = gamestate.player,
 	}
 	self.controls = {
-		target = player,
 		move_x = 0, move_y = 0,
 		aim_x = 0, aim_y = 0,
 		fire_pressed = false, fire_down = false,
@@ -67,7 +66,7 @@ end
 function Enemy:get_stunned()
 	if self.ai then
 		self.ai.state = "hunting"
-		self.ai.wake_frame = game_frame + 20
+		self.ai.wake_frame = gamestate.game_frame + 20
 	end
 	if self.controls then
 		self.controls.move_x = 0

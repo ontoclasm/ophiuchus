@@ -13,7 +13,7 @@ end
 -- brain types
 
 function AIControlSystem:mook(e, dt)
-	if e.ai.wake_frame <= game_frame then
+	if e.ai.wake_frame <= gamestate.game_frame then
 		if e.ai.state == "thinking" or mymath.one_chance_in(10) then
 			-- rethink
 			if mymath.one_chance_in(2) then
@@ -27,7 +27,7 @@ function AIControlSystem:mook(e, dt)
 			e.controls.move_x = love.math.random(3) - 2
 			e.controls.move_y = love.math.random(3) - 2
 
-			e.ai.wake_frame = game_frame + 60
+			e.ai.wake_frame = gamestate.game_frame + 60
 		elseif e.ai.state == "hunting" then
 			local target_pos = e.ai.hunting_target.pos
 			if not target_pos then
@@ -39,7 +39,7 @@ function AIControlSystem:mook(e, dt)
 				e.controls.move_y = mymath.abs_floor(dy * 1.99)
 			end
 
-			e.ai.wake_frame = game_frame + 20
+			e.ai.wake_frame = gamestate.game_frame + 20
 		end
 
 	end

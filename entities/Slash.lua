@@ -4,7 +4,7 @@ function Slash:init(x, y, dx, dy, team)
 	self.id = idcounter.get_id("entity")
 	self.name = "Slash"
 	self.team = team
-	self.birth_frame = game_frame
+	self.birth_frame = gamestate.game_frame
 	self.pos = {x = x, y = y, half_w = 8, half_h = 8,}
 	self.vel = {dx = dx, dy = dy, dx_acc = 0, dy_acc = 0,}
 

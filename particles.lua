@@ -28,6 +28,7 @@ function particles.activate_particle(x, y, dx, dy, color, dur)
 	p.vel.dy = dy
 	p.drawable.color = color
 	TimerSystem:add_lifetime(p, dur)
+	p.birth_frame = gamestate.game_frame
 	p.particle_is_active = true
 	tiny.addEntity(world, p)
 end
