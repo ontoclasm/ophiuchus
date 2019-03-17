@@ -26,6 +26,10 @@ font_mono = love.graphics.newImageFont("art/font_mono.png",
 		" abcdefghijklmnopqrstuvwxyz" ..
 		"ABCDEFGHIJKLMNOPQRSTUVWXYZ0" ..
 		"123456789.,!?-+/():;%&`'*#=[]\"|_")
+font_large = love.graphics.newImageFont("art/font_large.png",
+		" abcdefghijklmnopqrstuvwxyz" ..
+		"ABCDEFGHIJKLMNOPQRSTUVWXYZ0" ..
+		"123456789.,!?-+/():;%&`'*#=[]\"|_")
 
 Bullet = require "entities/Bullet"
 Enemy = require "entities/Enemy"
