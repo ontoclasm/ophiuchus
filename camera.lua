@@ -1,7 +1,9 @@
 local camera = { x=0, y=0, rx=0, ry=0, tx=0, ty=0 }
 
 function camera.update()
-	target_pos = gamestate.player.pos
+	if gamestate.player then
+		camera.tx, camera.ty = gamestate.player.pos.x, gamestate.player.pos.y
+	end
 
 	-- lerp the camera
 	-- if controller:getActiveDevice() == "joystick" then
@@ -20,7 +22,7 @@ function camera.update()
 		-- camera.ry = camera.ry - (camera.ry - camera.ty) * 0.1
 	-- end
 
-	camera.x, camera.y = math.floor(target_pos.x - window_w/2), math.floor(target_pos.y - window_h/2)
+	camera.x, camera.y = math.floor(camera.tx - window_w/2), math.floor(camera.ty - window_h/2)
 end
 
 -- #verifyvenuz

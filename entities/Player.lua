@@ -83,7 +83,7 @@ function Player:die(silent)
 	-- end
 
 	-- rip 2019
-	error("you died"..(silent and " silently..." or " !"))
+	gamestate.gameover = true
 end
 
 return Player

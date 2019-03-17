@@ -15,6 +15,7 @@ function PlayState:enter()
 	-- img.blood_canvas:setFilter("linear", "nearest")
 
 	self.player = tiny.addEntity(world, Player:new(50, 300))
+	slogpixels:setCursor(1)
 
 	local found, start_x, start_y = false, nil, nil
 	for i = 1, 40 do
@@ -26,6 +27,8 @@ function PlayState:enter()
 		end
 		tiny.addEntity(world, Enemy:new(start_x, start_y))
 	end
+
+	camera.update()
 end
 
 function PlayState:update(dt)
@@ -68,11 +71,21 @@ function PlayState:update(dt)
 				-- mortals.update()
 				-- movement.update()
 
-				camera.update()
+				if self.gameover then
+					gamestate_manager.switch_to("GameOver")
+					break
+				else
+					camera.update()
+				end
 			end
 		else
-			if controller:pressed('menu') then self:unpause() end
-			if controller:pressed('view') then gamestate_manager.switch_to("Splash") end
+			if controller:pressed('menu') then
+				self:unpause()
+			end
+			if controller:pressed('view') then
+				gamestate_manager.switch_to("Splash")
+				break
+			end
 		end
 		self.time_acc = self.time_acc - TIMESTEP
 	end

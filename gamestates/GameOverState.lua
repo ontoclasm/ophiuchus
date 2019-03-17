@@ -1,13 +1,13 @@
-local SplashState = class("SplashState")
+local GameOverState = class("GameOverState")
 
-SplashState.name = "Splash Screen"
+GameOverState.name = "GameOver Screen"
 
-function SplashState:enter()
+function GameOverState:enter()
 	self.time_acc = 0
 	slogpixels:setCursor(2)
 end
 
-function SplashState:update(dt)
+function GameOverState:update(dt)
 	slogpixels:pixelMouse()
 	slogpixels:calcOffset()
 
@@ -21,32 +21,30 @@ function SplashState:update(dt)
 		mouse_x = slogpixels.mousex
 		mouse_y = slogpixels.mousey
 
-		if controller:pressed('r1') then
-			gamestate_manager.switch_to("Play")
-		elseif controller:pressed('view') or controller:pressed('menu') then
-			love.event.push("quit")
+		if controller:pressed('r1') or controller:pressed('view') or controller:pressed('menu') then
+			gamestate_manager.switch_to("Splash")
 		end
 
 		self.time_acc = self.time_acc - TIMESTEP
 	end
 end
 
-function SplashState:draw()
+function GameOverState:draw()
 	slogpixels:drawGameArea()
 
-	love.graphics.clear(color.bg)
+	love.graphics.clear(color.black)
 
 	local k = math.cos(gui_frame / 120) + 2
-	love.graphics.setColor(0.3 * k, 0.08 * k, 0.05 * k, 1)
+	love.graphics.setColor(0.1 * k, 0.03 * k, 0.2 * k, 1)
 	love.graphics.circle("fill", window_w/2, window_h/2, 50)
 	love.graphics.setColor(color.white)
-	love.graphics.printf("Ophiuchus", math.floor(window_w/2 - 100), math.floor(window_h/2 - font:getHeight()/2), 200, "center")
+	love.graphics.printf("rip to those that died", math.floor(window_w/2 - 100), math.floor(window_h/2 - font:getHeight()/2), 200, "center")
 	love.graphics.setColor(color.white)
 
 	slogpixels:endDrawGameArea()
 end
 
-function SplashState:focus(f)
+function GameOverState:focus(f)
 	if f then
 		love.mouse.setVisible(false)
 		love.mouse.setGrabbed(true)
@@ -56,8 +54,8 @@ function SplashState:focus(f)
 	end
 end
 
-function SplashState:exit()
+function GameOverState:exit()
 
 end
 
-return SplashState
+return GameOverState
