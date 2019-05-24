@@ -293,6 +293,7 @@ function PhysicsSystem:apply_attack(a, b, hit)
 	if a.collides.attack_profile.damage and b.hp then
 		b.hp = b.hp - a.collides.attack_profile.damage
 		-- dying etc. will be handled by the MortalSystem
+		particles.spray(hit.x, hit.y, math.min(6, a.collides.attack_profile.damage), color.white, 0, PI, 0.5, 5, 5, 25)
 	end
 end
 
@@ -302,7 +303,7 @@ function PhysicsSystem:apply_chain_knock(a, b, hit)
 		if b.drawable then
 			b.drawable.flash_end_frame = gamestate.game_frame + math.floor(2 * len)
 		end
-		local angle = mymath.average_angles(math.atan2(a.pos.y - b.pos.y, a.pos.x - b.pos.x), math.atan2(a.vel.dy, a.vel.dx))
+		local angle = mymath.average_angles(math.atan2(a.pos.y - b.pos.y, a.pos.x - b.pos.x), math.atan2(a.vel.dy, a.vel.dx), math.atan2(a.vel.dy, a.vel.dx))
 		-- if b.drawable then
 		-- 	b.drawable.flash_end_frame = gamestate.game_frame + 5*len
 		-- end
@@ -314,6 +315,7 @@ function PhysicsSystem:apply_chain_knock(a, b, hit)
 		if b.hp then
 			b.hp = b.hp - math.floor(2 * len)
 		end
+		particles.spray(hit.x, hit.y, 5, color.white, 0, PI, 0.5, 5, 5, 25)
 	end
 end
 

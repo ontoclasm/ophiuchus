@@ -18,7 +18,7 @@ function PlayState:enter()
 	slogpixels:setCursor(1)
 
 	local found, start_x, start_y = false, nil, nil
-	for i = 1, 40 do
+	for i = 1, 120 do
 		found = false
 		while not found do
 			start_x = love.math.random(mainmap.width * TILE_SIZE / 2, mainmap.width * TILE_SIZE)

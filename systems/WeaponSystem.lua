@@ -49,7 +49,7 @@ WeaponSystem.models["assault"] = {
 			local angle = mymath.weighted_spread(math.atan2(e.controls.aim_y - e.pos.y, e.controls.aim_x - e.pos.x), 0.1)
 			tiny.addEntity(world, Slash:new(
 				e.pos.x + math.cos(angle) * 10, e.pos.y + math.sin(angle) * 10,
-				(e.vel and e.vel.dx or 0) + math.cos(angle) * 40, (e.vel and e.vel.dy or 0) + math.sin(angle) * 40,
+				(e.vel and e.vel.dx or 0) + math.cos(angle) * 20, (e.vel and e.vel.dy or 0) + math.sin(angle) * 20,
 				e.team))
 			e.weapon.ready_frame = gamestate.game_frame + 30
 		end
